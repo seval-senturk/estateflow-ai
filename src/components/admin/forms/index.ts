@@ -4,4 +4,5 @@ export { FormField } from "./form-field";
 export { FormLayout } from "./form-layout";
 export { FormSection } from "./form-section";
 export { FormSelectField } from "./form-select-field";
+export { FormRichTextField } from "./form-rich-text-field";
 export { FormTextareaField } from "./form-textarea-field";
