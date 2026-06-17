@@ -1,34 +1,60 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 
-import { routes } from "@/config/routes";
 import { seoConfig } from "@/config/seo";
 import { PropertyCard } from "@/features/properties/components/property-card";
 import { PublicPropertyPagination } from "@/features/properties/components/public-property-pagination";
-import { propertyService } from "@/features/properties/services";
 import {
-  PropertyListingToolbar,
-  PropertyListItem,
-  PropertySearchHero,
-} from "@/features/website/components";
+  PropertyActiveFilters,
+  PropertyFiltersDrawer,
+  PropertyFiltersPanel,
+  PropertyMapViewLazy,
+  PropertyResultsToolbar,
+  PropertySearchBar,
+  PropertySearchEmpty,
+  PropertySortSelect,
+} from "@/features/search/components";
+import { countActiveFilters, getActiveFilterChips } from "@/features/search/lib/active-filters";
+import { buildCanonicalSearchUrl } from "@/features/search/lib/build-search-url";
+import {
+  getViewMode,
+  isMapViewEnabled,
+  parsePublicPropertyFilters,
+} from "@/features/search/lib/parse-search-params";
+import { searchService } from "@/features/search/services/search.service";
+import { PropertyListItem } from "@/features/website/components/property-list-item";
 import { buildPropertyListJsonLd } from "@/features/website/lib/structured-data";
-import { getViewMode, parsePublicPropertyFilters } from "@/features/website/lib/parse-filters";
 
 interface PublicPropertiesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export const metadata: Metadata = {
-  title: "İlanlar",
-  description: "Satılık ve kiralık emlak ilanlarını keşfedin.",
-  openGraph: {
-    title: `İlanlar | ${seoConfig.defaultTitle}`,
-    description: "Güncel satılık ve kiralık emlak portföyü.",
-    url: `${seoConfig.siteUrl}${routes.public.properties}`,
-  },
-  alternates: { canonical: `${seoConfig.siteUrl}${routes.public.properties}` },
-};
+export async function generateMetadata({
+  searchParams,
+}: PublicPropertiesPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const filters = parsePublicPropertyFilters(params);
+  const chips = getActiveFilterChips(filters);
+  const hasFilters = chips.length > 0;
+  const canonical = `${seoConfig.siteUrl}${buildCanonicalSearchUrl(filters)}`;
+
+  const title = hasFilters ? "İlan Arama Sonuçları" : "İlanlar";
+  const description = hasFilters
+    ? `Filtrelenmiş emlak ilanları — ${chips.map((chip) => chip.label).join(", ")}`
+    : "Satılık ve kiralık emlak ilanlarını keşfedin.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${title} | ${seoConfig.defaultTitle}`,
+      description,
+      url: canonical,
+    },
+    alternates: { canonical },
+    robots: hasFilters ? { index: true, follow: true } : undefined,
+  };
+}
 
 export default async function PublicPropertiesPage({
   searchParams,
@@ -36,7 +62,14 @@ export default async function PublicPropertiesPage({
   const params = await searchParams;
   const filters = parsePublicPropertyFilters(params);
   const view = getViewMode(params);
-  const result = await propertyService.listPublished(filters);
+  const mapEnabled = isMapViewEnabled(params);
+  const [result, options] = await Promise.all([
+    searchService.search(filters),
+    searchService.getFilterOptions(filters.city),
+  ]);
+
+  const featureLabels = Object.fromEntries(options.features.map((f) => [f.slug, f.name]));
+  const activeCount = countActiveFilters(filters, featureLabels);
   const listJsonLd = buildPropertyListJsonLd(result.items);
 
   return (
@@ -47,60 +80,89 @@ export default async function PublicPropertiesPage({
       />
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-10 space-y-6">
+        <div className="mb-8 space-y-6">
           <div className="space-y-3">
             <p className="text-sm font-medium tracking-wide text-primary uppercase">Portföy</p>
             <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
               Emlak İlanları
             </h1>
             <p className="max-w-2xl text-muted-foreground">
-              Güncel satılık ve kiralık ilanlarımızı inceleyin.
+              Gelişmiş filtrelerle aradığınız mülkü hızlıca bulun.
             </p>
           </div>
-          <PropertySearchHero compact />
+          <PropertySearchBar
+            defaultSearch={filters.search}
+            defaultCity={filters.city}
+            defaultDistrict={filters.district}
+            compact
+          />
         </div>
 
-        {result.items.length === 0 ? (
-          <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center">
-            <h2 className="font-heading text-lg font-semibold">İlan bulunamadı</h2>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Arama kriterlerinize uygun ilan bulunmuyor. Filtreleri değiştirmeyi deneyin.
-            </p>
-            <Link href={routes.public.properties} className="mt-4 text-sm font-medium text-primary">
-              Tüm ilanları göster
-            </Link>
-          </div>
-        ) : (
-          <>
+        <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="hidden lg:block">
+            <PropertyFiltersPanel
+              filters={filters}
+              options={options}
+              view={view}
+              mapEnabled={mapEnabled}
+            />
+          </aside>
+
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <PropertyFiltersDrawer
+                filters={filters}
+                options={options}
+                view={view}
+                mapEnabled={mapEnabled}
+                activeCount={activeCount}
+              />
+              <Suspense fallback={null}>
+                <PropertySortSelect filters={filters} view={view} mapEnabled={mapEnabled} />
+              </Suspense>
+            </div>
+
             <Suspense fallback={null}>
-              <PropertyListingToolbar total={result.total} className="mb-6" />
+              <PropertyActiveFilters filters={filters} options={options} />
             </Suspense>
 
-            {view === "list" ? (
-              <div className="space-y-4">
-                {result.items.map((property) => (
-                  <PropertyListItem key={property.id} property={property} />
-                ))}
-              </div>
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {result.items.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </div>
-            )}
+            {mapEnabled ? <PropertyMapViewLazy properties={result.items} /> : null}
 
-            {result.totalPages > 1 ? (
-              <div className="mt-10 flex justify-center">
-                <PublicPropertyPagination
-                  page={result.page}
-                  totalPages={result.totalPages}
-                  searchParams={params}
-                />
-              </div>
-            ) : null}
-          </>
-        )}
+            {result.items.length === 0 ? (
+              <PropertySearchEmpty />
+            ) : (
+              <>
+                <Suspense fallback={null}>
+                  <PropertyResultsToolbar total={result.total} />
+                </Suspense>
+
+                {view === "list" ? (
+                  <div className="space-y-4">
+                    {result.items.map((property) => (
+                      <PropertyListItem key={property.id} property={property} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {result.items.map((property) => (
+                      <PropertyCard key={property.id} property={property} />
+                    ))}
+                  </div>
+                )}
+
+                {result.totalPages > 1 ? (
+                  <div className="flex justify-center pt-4">
+                    <PublicPropertyPagination
+                      page={result.page}
+                      totalPages={result.totalPages}
+                      searchParams={params}
+                    />
+                  </div>
+                ) : null}
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

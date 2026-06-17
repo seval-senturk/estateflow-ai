@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { PropertySearchHero } from "@/features/website/components";
+import { PropertySearchBar } from "@/features/search/components";
 import {
   CategorySection,
   CtaSection,
@@ -51,7 +51,7 @@ export default async function HomePage() {
               Satılık ve kiralık portföyümüzü inceleyin. Uzman danışmanlarımız size
               özel çözümler sunar.
             </p>
-            <PropertySearchHero />
+            <PropertySearchBar />
           </div>
         </div>
       </section>
