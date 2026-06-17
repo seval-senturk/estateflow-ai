@@ -12,4 +12,15 @@ export {
   ValidationError,
 } from "./errors";
 export { prisma } from "./prisma";
+export {
+  activeOnly,
+  auditCreateFields,
+  auditUpdateFields,
+  databaseConfig,
+  generateSlug,
+  restoreData,
+  softDeleteData,
+  toPaginatedResult,
+  toPrismaPagination,
+} from "./database";
 export { cn } from "./utils";
