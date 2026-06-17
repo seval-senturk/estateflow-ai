@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { appConfig } from "@/config/app";
 import type { AdminNavItem } from "@/config/navigation";
-import { Button } from "@/components/shared";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -27,11 +27,10 @@ export function AdminMobileNav({ items }: AdminMobileNavProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         className="inline-flex lg:hidden"
+        render={<Button variant="outline" size="sm" type="button" />}
       >
-        <Button variant="outline" size="sm" type="button">
-          <Menu className="size-4" />
-          <span className="sr-only">Open navigation</span>
-        </Button>
+        <Menu className="size-4" />
+        <span className="sr-only">Open navigation</span>
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-0">
         <SheetHeader className="border-b border-border px-6 py-5 text-left">

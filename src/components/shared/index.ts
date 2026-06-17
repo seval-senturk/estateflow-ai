@@ -1,4 +1,5 @@
 export { Button, buttonVariants } from "./button";
+export { LinkButton } from "./link-button";
 export { Breadcrumb, type BreadcrumbItemData } from "./breadcrumb";
 export { DataTable, type DataTableColumn, type DataTableProps } from "./data-table";
 export {

@@ -8,7 +8,7 @@ import { Menu, X } from "lucide-react";
 import { appConfig } from "@/config/app";
 import { publicNavigation } from "@/config/navigation";
 import { routes } from "@/config/routes";
-import { Button } from "@/components/shared";
+import { Button, LinkButton } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
 export function PublicMobileNav() {
@@ -47,12 +47,10 @@ export function PublicMobileNav() {
             ))}
           </nav>
           <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
-            <Button variant="outline" render={<Link href={routes.auth.login} />}>
+            <LinkButton href={routes.auth.login} variant="outline">
               Giriş Yap
-            </Button>
-            <Button render={<Link href={routes.public.properties} />}>
-              İlanları Keşfet
-            </Button>
+            </LinkButton>
+            <LinkButton href={routes.public.properties}>İlanları Keşfet</LinkButton>
           </div>
         </div>
       ) : null}

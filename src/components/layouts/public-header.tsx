@@ -1,8 +1,6 @@
-import Link from "next/link";
-
 import { publicNavigation } from "@/config/navigation";
 import { routes } from "@/config/routes";
-import { Button } from "@/components/shared";
+import { LinkButton } from "@/components/shared";
 import { PublicLogo, PublicMobileNav } from "@/features/website/components";
 import { PublicNavLinks } from "./public-nav-links";
 import { cn } from "@/lib/utils";
@@ -25,17 +23,21 @@ export function PublicHeader({ className }: PublicHeaderProps) {
         <PublicNavLinks items={publicNavigation} className="hidden md:flex" />
 
         <div className="flex items-center gap-2">
-          <Button
+          <LinkButton
+            href={routes.auth.login}
             variant="ghost"
             size="sm"
             className="hidden sm:inline-flex"
-            render={<Link href={routes.auth.login} />}
           >
             Giriş Yap
-          </Button>
-          <Button size="sm" className="hidden sm:inline-flex" render={<Link href={routes.public.properties} />}>
+          </LinkButton>
+          <LinkButton
+            href={routes.public.properties}
+            size="sm"
+            className="hidden sm:inline-flex"
+          >
             İlanları Keşfet
-          </Button>
+          </LinkButton>
           <PublicMobileNav />
         </div>
       </div>

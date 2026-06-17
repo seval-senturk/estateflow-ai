@@ -39,6 +39,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${dmSans.variable} ${sourceSerif.variable} min-h-screen font-sans antialiased`}
+        suppressHydrationWarning
       >
         <AppProviders session={session}>{children}</AppProviders>
       </body>

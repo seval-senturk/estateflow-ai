@@ -1,9 +1,7 @@
-import Link from "next/link";
-
 import { PropertyCard } from "@/features/properties/components/property-card";
 import type { PublicPropertyListItem } from "@/features/properties/types";
 import { routes } from "@/config/routes";
-import { Button } from "@/components/shared";
+import { LinkButton } from "@/components/shared";
 
 interface PropertyShowcaseProps {
   title: string;
@@ -29,9 +27,9 @@ export function PropertyShowcase({
           </h2>
           <p className="max-w-2xl text-muted-foreground">{description}</p>
         </div>
-        <Button variant="outline" render={<Link href={viewAllHref} />}>
+        <LinkButton href={viewAllHref} variant="outline">
           Tümünü Gör
-        </Button>
+        </LinkButton>
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {properties.map((property) => (
