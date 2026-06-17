@@ -18,6 +18,7 @@ export const permissions = {
   media: {
     read: "media:read",
     upload: "media:upload",
+    update: "media:update",
     delete: "media:delete",
   },
   users: {
@@ -79,6 +80,7 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.blog.publish,
     permissions.media.read,
     permissions.media.upload,
+    permissions.media.update,
     permissions.favorites.read,
   ],
   [roles.AGENT]: [
@@ -88,6 +90,7 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.blog.read,
     permissions.media.read,
     permissions.media.upload,
+    permissions.media.update,
     permissions.favorites.read,
     permissions.favorites.manage,
     permissions.contact.read,

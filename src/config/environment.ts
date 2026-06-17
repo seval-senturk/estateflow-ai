@@ -15,6 +15,7 @@ const serverEnvSchema = z.object({
 const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_APP_NAME: z.string().default("EstateFlow AI"),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
 });
 
 function parseServerEnv() {
@@ -33,6 +34,7 @@ function parseClientEnv() {
   return clientEnvSchema.parse({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   });
 }
 

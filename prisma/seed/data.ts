@@ -52,6 +52,7 @@ export const PERMISSIONS = [
   // Media
   { name: "Read Media", slug: "media:read", module: "media" },
   { name: "Upload Media", slug: "media:upload", module: "media" },
+  { name: "Update Media", slug: "media:update", module: "media" },
   { name: "Delete Media", slug: "media:delete", module: "media" },
   // Users
   { name: "Read Users", slug: "users:read", module: "users" },
@@ -90,6 +91,7 @@ export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
     "blog:publish",
     "media:read",
     "media:upload",
+    "media:update",
     "favorites:read",
   ],
   AGENT: [
@@ -99,6 +101,7 @@ export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
     "blog:read",
     "media:read",
     "media:upload",
+    "media:update",
     "favorites:read",
     "favorites:manage",
     "contact:read",
@@ -166,6 +169,7 @@ export const LEAD_STATUSES = [
 export const MEDIA_FOLDERS = [
   { name: "Properties", slug: "properties" },
   { name: "Blog", slug: "blog" },
-  { name: "Team", slug: "team" },
+  { name: "Users", slug: "users" },
+  { name: "Company", slug: "company" },
   { name: "General", slug: "general" },
 ] as const;
