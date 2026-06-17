@@ -61,6 +61,19 @@ export const allPermissions: Permission[] = [
 export const rolePermissions: Record<Role, readonly Permission[]> = {
   [roles.SUPER_ADMIN]: allPermissions,
   [roles.ADMIN]: allPermissions.filter((p) => p !== permissions.users.delete),
+  [roles.EDITOR]: [
+    permissions.properties.read,
+    permissions.properties.create,
+    permissions.properties.update,
+    permissions.properties.publish,
+    permissions.blog.read,
+    permissions.blog.create,
+    permissions.blog.update,
+    permissions.blog.publish,
+    permissions.media.read,
+    permissions.media.upload,
+    permissions.favorites.read,
+  ],
   [roles.AGENT]: [
     permissions.properties.read,
     permissions.properties.create,
