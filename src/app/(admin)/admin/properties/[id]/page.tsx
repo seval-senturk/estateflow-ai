@@ -5,6 +5,7 @@ import { PageHeader, Button } from "@/components/shared";
 import { permissions } from "@/config/permissions";
 import { routes } from "@/config/routes";
 import { PropertyDetailTabs } from "@/features/properties/components";
+import { propertyMediaService } from "@/features/media/services";
 import { propertyService } from "@/features/properties/services";
 import { enforcePermission } from "@/lib/authorization/guards";
 
@@ -16,9 +17,10 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
   const user = await enforcePermission(permissions.properties.read);
   const { id } = await params;
 
-  const [propertyResult, lookup] = await Promise.all([
+  const [propertyResult, lookup, mediaResult] = await Promise.all([
     propertyService.getById(id),
     propertyService.getLookupData(),
+    propertyMediaService.getPropertyMedia(id),
   ]);
 
   if (!propertyResult.success) {
@@ -47,6 +49,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
       />
       <PropertyDetailTabs
         property={propertyResult.data}
+        propertyMedia={mediaResult.success ? mediaResult.data : { images: [], videos: [] }}
         statuses={lookup.statuses.map((status) => ({
           id: status.id,
           name: status.name,

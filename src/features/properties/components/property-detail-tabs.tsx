@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { updatePropertyStatusAction } from "../actions";
 import { PROPERTY_DETAIL_TABS, type PropertyDetailTabId } from "../constants";
 import { PropertyStatusBadge } from "./property-status-badge";
+import { PropertyGalleryManager } from "@/features/media/components";
+import type { PropertyMediaBundle } from "@/features/media/types";
 import type { PropertyDetail } from "../types";
 import {
   formatPropertyDate,
@@ -28,6 +30,7 @@ interface StatusOption {
 
 interface PropertyDetailTabsProps {
   property: PropertyDetail;
+  propertyMedia: PropertyMediaBundle;
   statuses: StatusOption[];
   canUpdate: boolean;
 }
@@ -45,6 +48,7 @@ function DetailField({ label, value }: { label: string; value?: React.ReactNode 
 
 export function PropertyDetailTabs({
   property,
+  propertyMedia,
   statuses,
   canUpdate,
 }: PropertyDetailTabsProps) {
@@ -250,11 +254,12 @@ export function PropertyDetailTabs({
         ) : null}
 
         {activeTab === "media" ? (
-          <div className="flex min-h-40 items-center justify-center rounded-lg border border-dashed border-border bg-muted/20">
-            <p className="text-sm text-muted-foreground">
-              Medya yönetimi Faz 6 medya modülü ile entegre edilecek.
-            </p>
-          </div>
+          <PropertyGalleryManager
+            propertyId={property.id}
+            images={propertyMedia.images}
+            videos={propertyMedia.videos}
+            canUpdate={canUpdate}
+          />
         ) : null}
 
         {activeTab === "seo" ? (
