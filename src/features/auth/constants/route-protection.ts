@@ -21,6 +21,7 @@ export const PROTECTED_ADMIN_ROUTES: readonly ProtectedAdminRoute[] = [
   { prefix: routes.admin.media, permission: "media:read" },
   { prefix: routes.admin.properties, permission: "properties:read" },
   { prefix: routes.admin.blog, permission: "blog:read" },
+  { prefix: routes.admin.leads, permission: "leads:read" },
   { prefix: routes.admin.contact, permission: "contact:read" },
   { prefix: routes.admin.favorites, permission: "favorites:read" },
 ] as const;

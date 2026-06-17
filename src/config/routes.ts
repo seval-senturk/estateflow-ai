@@ -22,6 +22,7 @@ export const routes = {
     propertyEdit: (id: string) => `/admin/properties/${id}/edit` as const,
     blog: "/admin/blog",
     media: "/admin/media",
+    leads: "/admin/leads",
     favorites: "/admin/favorites",
     contact: "/admin/contact",
     users: "/admin/users",

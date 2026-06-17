@@ -41,6 +41,12 @@ export const permissions = {
     read: "favorites:read",
     manage: "favorites:manage",
   },
+  leads: {
+    read: "leads:read",
+    create: "leads:create",
+    update: "leads:update",
+    delete: "leads:delete",
+  },
 } as const;
 
 export type Permission = {
@@ -56,6 +62,7 @@ export const allPermissions: Permission[] = [
   ...Object.values(permissions.logs),
   ...Object.values(permissions.contact),
   ...Object.values(permissions.favorites),
+  ...Object.values(permissions.leads),
 ];
 
 export const rolePermissions: Record<Role, readonly Permission[]> = {
@@ -84,6 +91,9 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.favorites.read,
     permissions.favorites.manage,
     permissions.contact.read,
+    permissions.leads.read,
+    permissions.leads.create,
+    permissions.leads.update,
   ],
   [roles.VIEWER]: [
     permissions.properties.read,
