@@ -127,14 +127,82 @@ export class PropertyRepository extends BaseRepository {
     const pageSize = filters.pageSize ?? 12;
     const { skip, take } = toPrismaPagination({ page, pageSize });
 
+    const locationFilter: Prisma.PropertyLocationWhereInput = {
+      ...(filters.city
+        ? { city: { contains: filters.city, mode: "insensitive" } }
+        : {}),
+      ...(filters.district
+        ? { district: { contains: filters.district, mode: "insensitive" } }
+        : {}),
+      ...(filters.neighborhood
+        ? { neighborhood: { contains: filters.neighborhood, mode: "insensitive" } }
+        : {}),
+    };
+
     const where: Prisma.PropertyWhereInput = {
       ...activeOnly,
       isPublished: true,
       ...(filters.isFeatured !== undefined ? { isFeatured: filters.isFeatured } : {}),
       ...(filters.listingType ? { listingType: filters.listingType } : {}),
       ...(filters.propertyKind ? { propertyKind: filters.propertyKind } : {}),
-      ...(filters.city
-        ? { location: { city: { contains: filters.city, mode: "insensitive" } } }
+      ...(filters.categorySlug
+        ? { category: { slug: filters.categorySlug, isActive: true } }
+        : {}),
+      ...(filters.currency ? { currency: filters.currency } : {}),
+      ...(filters.roomCount ? { roomCount: filters.roomCount } : {}),
+      ...(filters.minBathrooms != null || filters.maxBathrooms != null
+        ? {
+            bathroomCount: {
+              ...(filters.minBathrooms != null ? { gte: filters.minBathrooms } : {}),
+              ...(filters.maxBathrooms != null ? { lte: filters.maxBathrooms } : {}),
+            },
+          }
+        : {}),
+      ...(filters.minFloor != null || filters.maxFloor != null
+        ? {
+            floor: {
+              ...(filters.minFloor != null ? { gte: filters.minFloor } : {}),
+              ...(filters.maxFloor != null ? { lte: filters.maxFloor } : {}),
+            },
+          }
+        : {}),
+      ...(filters.maxBuildingAge != null ? { buildingAge: { lte: filters.maxBuildingAge } } : {}),
+      ...(filters.minGrossArea != null || filters.maxGrossArea != null
+        ? {
+            grossArea: {
+              ...(filters.minGrossArea != null ? { gte: filters.minGrossArea } : {}),
+              ...(filters.maxGrossArea != null ? { lte: filters.maxGrossArea } : {}),
+            },
+          }
+        : {}),
+      ...(filters.minNetArea != null || filters.maxNetArea != null
+        ? {
+            netArea: {
+              ...(filters.minNetArea != null ? { gte: filters.minNetArea } : {}),
+              ...(filters.maxNetArea != null ? { lte: filters.maxNetArea } : {}),
+            },
+          }
+        : {}),
+      ...(filters.minPrice != null || filters.maxPrice != null
+        ? {
+            price: {
+              ...(filters.minPrice != null ? { gte: filters.minPrice } : {}),
+              ...(filters.maxPrice != null ? { lte: filters.maxPrice } : {}),
+            },
+          }
+        : {}),
+      ...(Object.keys(locationFilter).length > 0 ? { location: locationFilter } : {}),
+      ...(filters.features?.length
+        ? {
+            AND: filters.features.map((slug) => ({
+              features: {
+                some: {
+                  value: "true",
+                  feature: { slug, isActive: true },
+                },
+              },
+            })),
+          }
         : {}),
       ...(filters.search
         ? {
@@ -143,13 +211,15 @@ export class PropertyRepository extends BaseRepository {
               { shortDescription: { contains: filters.search, mode: "insensitive" } },
               { location: { city: { contains: filters.search, mode: "insensitive" } } },
               { location: { district: { contains: filters.search, mode: "insensitive" } } },
+              { location: { neighborhood: { contains: filters.search, mode: "insensitive" } } },
             ],
           }
         : {}),
     };
 
+    const sortField = filters.sortBy ?? "publishedAt";
     const orderBy: Prisma.PropertyOrderByWithRelationInput = {
-      [filters.sortBy ?? "publishedAt"]: filters.sortOrder ?? "desc",
+      [sortField]: filters.sortOrder ?? "desc",
     };
 
     const [items, total] = await Promise.all([
@@ -197,6 +267,8 @@ export class PropertyRepository extends BaseRepository {
         primaryImageUrl: imageUrl,
         primaryImagePublicId: primaryImage?.media?.publicId ?? null,
         categoryName: property.category?.name ?? null,
+        latitude: decimalToNumber(property.location?.latitude),
+        longitude: decimalToNumber(property.location?.longitude),
       };
     });
 

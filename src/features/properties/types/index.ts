@@ -117,6 +117,8 @@ export interface PublicPropertyListItem {
   primaryImageUrl: string | null;
   primaryImagePublicId: string | null;
   categoryName: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface PublicPropertyFilters {
@@ -124,10 +126,27 @@ export interface PublicPropertyFilters {
   pageSize?: number;
   search?: string;
   city?: string;
-  listingType?: import("@prisma/client").ListingType;
-  propertyKind?: import("@prisma/client").PropertyKind;
+  district?: string;
+  neighborhood?: string;
+  categorySlug?: string;
+  listingType?: ListingType;
+  propertyKind?: PropertyKind;
+  minPrice?: number;
+  maxPrice?: number;
+  currency?: Currency;
+  roomCount?: string;
+  minBathrooms?: number;
+  maxBathrooms?: number;
+  minFloor?: number;
+  maxFloor?: number;
+  maxBuildingAge?: number;
+  minGrossArea?: number;
+  maxGrossArea?: number;
+  minNetArea?: number;
+  maxNetArea?: number;
+  features?: string[];
   isFeatured?: boolean;
-  sortBy?: "publishedAt" | "price";
+  sortBy?: "publishedAt" | "price" | "grossArea";
   sortOrder?: "asc" | "desc";
 }
 
