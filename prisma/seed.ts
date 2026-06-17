@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client";
 
 import { seedBlogData } from "./seed/blog.seed";
 import { seedCrmData } from "./seed/crm.seed";
-import { seedPropertyData, seedSuperAdmin } from "./seed/property.seed";
+import { seedPropertyData } from "./seed/property.seed";
+import { seedDevUsers } from "./seed/users.seed";
 import { seedRolesAndPermissions } from "./seed/roles.seed";
 import { seedMediaFolders, seedSettings } from "./seed/settings.seed";
 
@@ -17,7 +18,7 @@ async function main() {
   await seedCrmData(prisma);
   await seedMediaFolders(prisma);
   await seedSettings(prisma);
-  await seedSuperAdmin(prisma);
+  await seedDevUsers(prisma);
 
   console.log("\n✅ Seed completed successfully.\n");
 }
