@@ -1,0 +1,2 @@
+﻿// media / schemas
+export {};

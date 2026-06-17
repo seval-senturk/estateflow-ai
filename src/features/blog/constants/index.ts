@@ -1,0 +1,2 @@
+﻿// blog / constants
+export {};

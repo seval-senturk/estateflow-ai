@@ -1,0 +1,2 @@
+﻿// media / types
+export {};
