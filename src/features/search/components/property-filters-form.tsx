@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 
 import { Button, Input } from "@/components/shared";
 import type { PublicPropertyFilters } from "@/features/properties/types";
@@ -36,6 +36,8 @@ export function PropertyFiltersForm({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState<PublicPropertyFilters>(filters);
+  const cityListId = useId();
+  const districtListId = useId();
 
   const featuredFeatures = options.features.filter((feature) =>
     FEATURED_FILTER_SLUGS.includes(feature.slug as (typeof FEATURED_FILTER_SLUGS)[number]),
@@ -77,12 +79,12 @@ export function PropertyFiltersForm({
         <FilterSection title="Lokasyon">
           <Field label="Şehir">
             <Input
-              list="search-cities"
+              list={cityListId}
               value={draft.city ?? ""}
               onChange={(event) => updateDraft({ city: event.target.value || undefined })}
               placeholder="Örn. İstanbul"
             />
-            <datalist id="search-cities">
+            <datalist id={cityListId}>
               {options.cities.map((city) => (
                 <option key={city} value={city} />
               ))}
@@ -90,12 +92,12 @@ export function PropertyFiltersForm({
           </Field>
           <Field label="İlçe">
             <Input
-              list="search-districts"
+              list={districtListId}
               value={draft.district ?? ""}
               onChange={(event) => updateDraft({ district: event.target.value || undefined })}
               placeholder="Örn. Kadıköy"
             />
-            <datalist id="search-districts">
+            <datalist id={districtListId}>
               {options.districts.map((district) => (
                 <option key={district} value={district} />
               ))}

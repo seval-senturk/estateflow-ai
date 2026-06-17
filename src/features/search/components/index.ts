@@ -6,4 +6,3 @@ export { PropertyActiveFilters } from "./property-active-filters";
 export { PropertySortSelect } from "./property-sort-select";
 export { PropertySearchEmpty } from "./property-search-empty";
 export { PropertyResultsToolbar } from "./property-results-toolbar";
-export { PropertyMapViewLazy } from "./property-map-view-lazy";

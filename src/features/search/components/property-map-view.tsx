@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
 import { routes } from "@/config/routes";
 import type { PublicPropertyListItem } from "@/features/properties/types";
 import { formatPropertyPriceValue } from "@/features/properties/utils/property-formatters";
-
-import "leaflet/dist/leaflet.css";
 
 // Leaflet default icon paths break under bundlers — use CDN assets.
 const DefaultIcon = L.icon({
@@ -30,6 +29,12 @@ interface PropertyMapViewProps {
 const DEFAULT_CENTER: [number, number] = [41.0082, 28.9784];
 
 export function PropertyMapView({ properties, className }: PropertyMapViewProps) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
   const markers = properties.filter(
     (property) => property.latitude != null && property.longitude != null,
   );
@@ -39,6 +44,15 @@ export function PropertyMapView({ properties, className }: PropertyMapViewProps)
     firstMarker?.latitude != null && firstMarker.longitude != null
       ? [firstMarker.latitude, firstMarker.longitude]
       : DEFAULT_CENTER;
+
+  if (!ready) {
+    return (
+      <div
+        className={className ?? "h-[480px] overflow-hidden rounded-xl border border-border bg-muted"}
+        aria-hidden
+      />
+    );
+  }
 
   return (
     <div className={className ?? "h-[480px] overflow-hidden rounded-xl border border-border"}>

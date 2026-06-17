@@ -1,3 +1,5 @@
+"use client";
+
 import type { PublicPropertyFilters } from "@/features/properties/types";
 import type { PublicSearchFilterOptions } from "@/features/search/types";
 
@@ -10,9 +12,10 @@ interface PropertyFiltersPanelProps {
   mapEnabled?: boolean;
 }
 
+/** Desktop-only filter panel — avoids duplicating the mobile drawer form in the DOM. */
 export function PropertyFiltersPanel({ filters, options, view, mapEnabled }: PropertyFiltersPanelProps) {
   return (
-    <div className="sticky top-24 rounded-xl border border-border bg-card p-5">
+    <div className="sticky top-24 rounded-xl border border-border bg-card p-5 max-lg:hidden">
       <h2 className="mb-5 font-heading text-lg font-semibold">Filtreler</h2>
       <PropertyFiltersForm
         filters={filters}

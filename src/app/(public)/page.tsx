@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { PropertySearchBar } from "@/features/search/components";
+import { PropertySearchBar } from "@/features/search/components/property-search-bar";
 import {
   CategorySection,
   CtaSection,

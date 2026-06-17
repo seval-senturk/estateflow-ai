@@ -41,8 +41,8 @@ export function getActiveFilterChips(
   if (filters.categorySlug) addChip("categorySlug", `Kategori: ${filters.categorySlug}`);
   if (filters.listingType) addChip("listingType", LISTING_TYPE_LABELS[filters.listingType]);
   if (filters.propertyKind) addChip("propertyKind", PROPERTY_KIND_LABELS[filters.propertyKind]);
-  if (filters.minPrice != null) addChip("minPrice", `Min: ${filters.minPrice.toLocaleString("tr-TR")}`);
-  if (filters.maxPrice != null) addChip("maxPrice", `Max: ${filters.maxPrice.toLocaleString("tr-TR")}`);
+  if (filters.minPrice != null) addChip("minPrice", `Min: ${filters.minPrice}`);
+  if (filters.maxPrice != null) addChip("maxPrice", `Max: ${filters.maxPrice}`);
   if (filters.currency) addChip("currency", CURRENCY_LABELS[filters.currency]);
   if (filters.roomCount) addChip("roomCount", `Oda: ${filters.roomCount}`);
   if (filters.minBathrooms != null) addChip("minBathrooms", `Min Banyo: ${filters.minBathrooms}`);

@@ -8,12 +8,12 @@ import {
   PropertyActiveFilters,
   PropertyFiltersDrawer,
   PropertyFiltersPanel,
-  PropertyMapViewLazy,
   PropertyResultsToolbar,
-  PropertySearchBar,
   PropertySearchEmpty,
   PropertySortSelect,
 } from "@/features/search/components";
+import { PropertyMapViewLazy } from "@/features/search/components/property-map-view-lazy";
+import { PropertySearchBar } from "@/features/search/components/property-search-bar";
 import { countActiveFilters, getActiveFilterChips } from "@/features/search/lib/active-filters";
 import { buildCanonicalSearchUrl } from "@/features/search/lib/build-search-url";
 import {
@@ -99,7 +99,7 @@ export default async function PublicPropertiesPage({
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
-          <aside className="hidden lg:block">
+          <aside className="max-lg:hidden">
             <PropertyFiltersPanel
               filters={filters}
               options={options}
@@ -109,24 +109,28 @@ export default async function PublicPropertiesPage({
           </aside>
 
           <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <PropertyFiltersDrawer
-                filters={filters}
-                options={options}
-                view={view}
-                mapEnabled={mapEnabled}
-                activeCount={activeCount}
-              />
-              <Suspense fallback={null}>
+            <Suspense fallback={null}>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <PropertyFiltersDrawer
+                  filters={filters}
+                  options={options}
+                  view={view}
+                  mapEnabled={mapEnabled}
+                  activeCount={activeCount}
+                />
                 <PropertySortSelect filters={filters} view={view} mapEnabled={mapEnabled} />
-              </Suspense>
-            </div>
+              </div>
+            </Suspense>
 
             <Suspense fallback={null}>
               <PropertyActiveFilters filters={filters} options={options} />
             </Suspense>
 
-            {mapEnabled ? <PropertyMapViewLazy properties={result.items} /> : null}
+            {mapEnabled ? (
+              <Suspense fallback={<div className="h-[480px] animate-pulse rounded-xl bg-muted" />}>
+                <PropertyMapViewLazy properties={result.items} />
+              </Suspense>
+            ) : null}
 
             {result.items.length === 0 ? (
               <PropertySearchEmpty />
