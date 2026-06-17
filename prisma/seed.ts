@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { seedBlogData } from "./seed/blog.seed";
+import { seedBlogData, seedBlogPosts } from "./seed/blog.seed";
 import { seedCrmData } from "./seed/crm.seed";
 import { seedPropertyData } from "./seed/property.seed";
 import { seedDevUsers } from "./seed/users.seed";
@@ -19,6 +19,7 @@ async function main() {
   await seedMediaFolders(prisma);
   await seedSettings(prisma);
   await seedDevUsers(prisma);
+  await seedBlogPosts(prisma);
 
   console.log("\n✅ Seed completed successfully.\n");
 }

@@ -72,6 +72,12 @@ enum BlogCommentStatus {
   SPAM
 }
 
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 enum LeadSource {
   WEBSITE
   PHONE
@@ -696,6 +702,7 @@ model BlogPost {
   coverImage      String?
   categoryId      String?
   authorId        String
+  status          BlogPostStatus @default(DRAFT)
   isPublished     Boolean   @default(false)
   isFeatured      Boolean   @default(false)
   publishedAt     DateTime?
@@ -723,6 +730,7 @@ model BlogPost {
   @@index([slug])
   @@index([categoryId])
   @@index([authorId])
+  @@index([status])
   @@index([isPublished])
   @@index([publishedAt])
   @@index([createdAt])

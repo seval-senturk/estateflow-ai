@@ -1,10 +1,11 @@
 import type { PrismaClient } from "@prisma/client";
 
-const SOFT_DELETE_MODELS = new Set(["propertyCategory", "blogCategory", "mediaFolder"]);
+const SOFT_DELETE_MODELS = new Set(["propertyCategory", "blogCategory", "blogTag", "mediaFolder"]);
 
 type UpsertModel =
   | "propertyCategory"
   | "blogCategory"
+  | "blogTag"
   | "propertyStatus"
   | "propertyFeature"
   | "leadStatus"

@@ -1,2 +1,1 @@
-﻿// blog / services
-export {};
+﻿export { blogService, BlogService } from "./blog.service";
