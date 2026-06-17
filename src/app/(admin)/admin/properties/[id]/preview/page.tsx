@@ -51,6 +51,7 @@ export default async function PropertyPreviewPage({ params }: PropertyPreviewPag
     publishedAt: property.publishedAt ? new Date(property.publishedAt) : null,
     primaryImageUrl: primaryImage?.url ?? null,
     primaryImagePublicId: primaryImage?.publicId ?? null,
+    categoryName: property.categoryName ?? null,
   };
 
   return (
