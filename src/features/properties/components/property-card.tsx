@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { PropertyImage } from "@/components/media";
+
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils";
 
@@ -24,9 +26,20 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
       )}
     >
       <div className="relative aspect-[4/3] bg-muted">
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-          <span className="text-sm text-muted-foreground">Görsel yakında</span>
-        </div>
+        {property.primaryImageUrl ? (
+          <PropertyImage
+            src={property.primaryImageUrl}
+            alt={property.title}
+            publicId={property.primaryImagePublicId}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="rounded-none"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+            <span className="text-sm text-muted-foreground">Görsel yok</span>
+          </div>
+        )}
         {property.isFeatured ? (
           <span className="absolute top-3 left-3 rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold text-white">
             Öne Çıkan

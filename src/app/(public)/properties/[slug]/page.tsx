@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PublicPropertyGallery } from "@/features/media/components";
 import { routes } from "@/config/routes";
 import {
   formatPropertyPriceValue,
@@ -31,7 +32,9 @@ export async function generateMetadata({
     openGraph: {
       title: property.metaTitle ?? property.title,
       description: property.metaDescription ?? property.shortDescription ?? undefined,
-      images: property.ogImage ? [{ url: property.ogImage }] : undefined,
+      images: property.ogImage ? [{ url: property.ogImage }] : property.gallery.images.length > 0
+        ? property.gallery.images.map((img) => ({ url: img.url }))
+        : undefined,
     },
     alternates: property.canonicalUrl
       ? { canonical: property.canonicalUrl }
@@ -67,11 +70,11 @@ export default async function PublicPropertyDetailPage({
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-8">
-          <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
-            <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/40">
-              <span className="text-sm text-muted-foreground">Görsel galerisi yakında</span>
-            </div>
-          </div>
+          <PublicPropertyGallery
+            images={property.gallery.images}
+            videos={property.gallery.videos}
+            title={property.title}
+          />
 
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2 text-xs font-medium">

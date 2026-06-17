@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageHeader, Button } from "@/components/shared";
 import { routes } from "@/config/routes";
 import { PropertyCard } from "@/features/properties/components";
+import { propertyMediaService } from "@/features/media/services";
 import { propertyService } from "@/features/properties/services";
 import { enforcePermission } from "@/lib/authorization/guards";
 import { permissions } from "@/config/permissions";
@@ -28,6 +29,11 @@ export default async function PropertyPreviewPage({ params }: PropertyPreviewPag
   }
 
   const property = propertyResult.data;
+  const mediaResult = await propertyMediaService.getPropertyMedia(id);
+  const primaryImage = mediaResult.success
+    ? mediaResult.data.images.find((image) => image.isPrimary) ?? mediaResult.data.images[0]
+    : undefined;
+
   const publicItem = {
     id: property.id,
     title: property.title,
@@ -43,6 +49,8 @@ export default async function PropertyPreviewPage({ params }: PropertyPreviewPag
     grossArea: property.grossArea ?? null,
     isFeatured: property.isFeatured,
     publishedAt: property.publishedAt ? new Date(property.publishedAt) : null,
+    primaryImageUrl: primaryImage?.url ?? null,
+    primaryImagePublicId: primaryImage?.publicId ?? null,
   };
 
   return (

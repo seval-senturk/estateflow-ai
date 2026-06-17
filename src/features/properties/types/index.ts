@@ -114,6 +114,8 @@ export interface PublicPropertyListItem {
   grossArea: number | null;
   isFeatured: boolean;
   publishedAt: Date | null;
+  primaryImageUrl: string | null;
+  primaryImagePublicId: string | null;
 }
 
 export interface PublicPropertyDetail extends PublicPropertyListItem {
@@ -131,4 +133,22 @@ export interface PublicPropertyDetail extends PublicPropertyListItem {
   canonicalUrl: string | null;
   ogImage: string | null;
   features: Array<{ name: string; value: string }>;
+  gallery: {
+    images: Array<{
+      id: string;
+      url: string;
+      alt: string | null;
+      caption: string | null;
+      publicId: string | null;
+      isPrimary: boolean;
+    }>;
+    videos: Array<{
+      id: string;
+      url: string;
+      title: string | null;
+      provider: import("@prisma/client").MediaProvider;
+      embedUrl: string | null;
+      thumbnailUrl: string | null;
+    }>;
+  };
 }

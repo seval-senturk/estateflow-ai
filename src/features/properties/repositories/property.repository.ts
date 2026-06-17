@@ -10,6 +10,7 @@ import {
   toPrismaPagination,
 } from "@/lib/database";
 import { BaseRepository } from "@/repositories/base.repository";
+import { propertyMediaRepository } from "@/features/media/repositories";
 
 import type { PropertyDetail, PropertyListFilters, PropertyListItem, PropertyListResult, PublicPropertyDetail, PublicPropertyListItem } from "../types";
 import type { PropertyFormInput } from "../schemas";
@@ -133,7 +134,14 @@ export class PropertyRepository extends BaseRepository {
     const [items, total] = await Promise.all([
       prisma.property.findMany({
         where,
-        include: { location: true },
+        include: {
+          location: true,
+          images: {
+            include: { media: true },
+            orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
+            take: 1,
+          },
+        },
         orderBy: { publishedAt: "desc" },
         skip,
         take,
@@ -141,22 +149,33 @@ export class PropertyRepository extends BaseRepository {
       prisma.property.count({ where }),
     ]);
 
-    const mapped: PublicPropertyListItem[] = items.map((property) => ({
-      id: property.id,
-      title: property.title,
-      slug: property.slug,
-      shortDescription: property.shortDescription,
-      price: Number(property.price),
-      currency: property.currency,
-      listingType: property.listingType,
-      propertyKind: property.propertyKind,
-      city: property.location?.city ?? null,
-      district: property.location?.district ?? null,
-      roomCount: property.roomCount,
-      grossArea: decimalToNumber(property.grossArea),
-      isFeatured: property.isFeatured,
-      publishedAt: property.publishedAt,
-    }));
+    const mapped: PublicPropertyListItem[] = items.map((property) => {
+      const primaryImage = property.images[0];
+      const imageUrl =
+        primaryImage?.media?.secureUrl ??
+        primaryImage?.media?.url ??
+        primaryImage?.url ??
+        null;
+
+      return {
+        id: property.id,
+        title: property.title,
+        slug: property.slug,
+        shortDescription: property.shortDescription,
+        price: Number(property.price),
+        currency: property.currency,
+        listingType: property.listingType,
+        propertyKind: property.propertyKind,
+        city: property.location?.city ?? null,
+        district: property.location?.district ?? null,
+        roomCount: property.roomCount,
+        grossArea: decimalToNumber(property.grossArea),
+        isFeatured: property.isFeatured,
+        publishedAt: property.publishedAt,
+        primaryImageUrl: imageUrl,
+        primaryImagePublicId: primaryImage?.media?.publicId ?? null,
+      };
+    });
 
     const paginated = toPaginatedResult(mapped, total, { page, pageSize: pageSizeValue });
 
@@ -191,6 +210,10 @@ export class PropertyRepository extends BaseRepository {
 
     if (!property) return null;
 
+    const gallery = await propertyMediaRepository.getPublicGallery(property.id);
+    const primaryImage =
+      gallery.images.find((image) => image.isPrimary) ?? gallery.images[0];
+
     return {
       id: property.id,
       title: property.title,
@@ -223,6 +246,9 @@ export class PropertyRepository extends BaseRepository {
         name: entry.feature.name,
         value: entry.value,
       })),
+      primaryImageUrl: primaryImage?.url ?? null,
+      primaryImagePublicId: primaryImage?.publicId ?? null,
+      gallery,
     };
   }
 
