@@ -6,6 +6,7 @@ import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils";
 
 import type { PublicPropertyListItem } from "../types";
+import { PropertyFavoriteButton } from "./property-favorite-button";
 import {
   formatPropertyPriceValue,
   getListingTypeLabel,
@@ -36,7 +37,7 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
             className="rounded-none"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+          <div className="absolute inset-0 flex items-center justify-center bg-muted">
             <span className="text-sm text-muted-foreground">Görsel yok</span>
           </div>
         )}
@@ -48,12 +49,13 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
         <span className="absolute top-3 right-3 rounded-full bg-background/90 px-2.5 py-0.5 text-xs font-medium">
           {getListingTypeLabel(property.listingType)}
         </span>
+        <PropertyFavoriteButton propertyId={property.id} />
       </div>
 
       <div className="space-y-3 p-5">
         <div className="space-y-1">
           <p className="text-xs font-medium tracking-wide text-primary uppercase">
-            {getPropertyKindLabel(property.propertyKind)}
+            {property.categoryName ?? getPropertyKindLabel(property.propertyKind)}
           </p>
           <h3 className="font-heading text-lg font-semibold leading-snug">
             <Link
