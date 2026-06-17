@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
-import { AdminHeader, AdminSidebar } from "@/components/layouts";
+import { AdminShell } from "@/components/admin/layout";
 import { appConfig } from "@/config/app";
 import { enforceAdminAccess } from "@/lib/authorization/guards";
+import { filterAdminNavigation } from "@/lib/navigation";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -14,15 +15,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await enforceAdminAccess();
+  const user = await enforceAdminAccess();
+  const navigationItems = filterAdminNavigation(user.permissions);
 
-  return (
-    <div className="flex min-h-screen bg-muted/20">
-      <AdminSidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AdminHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
-      </div>
-    </div>
-  );
+  return <AdminShell navigationItems={navigationItems}>{children}</AdminShell>;
 }
