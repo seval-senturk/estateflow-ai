@@ -6,10 +6,19 @@ import { usePathname } from "next/navigation";
 import { appConfig } from "@/config/app";
 import { adminNavigation } from "@/config/navigation";
 import { routes } from "@/config/routes";
+import { useAuth } from "@/features/auth/hooks";
+import { hasPermission } from "@/lib/authorization";
 import { cn } from "@/lib/utils";
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const visibleNavigation = adminNavigation.filter((item) => {
+    if (!item.permission) return true;
+    if (!user) return false;
+    return hasPermission(user.permissions, item.permission);
+  });
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:block">
@@ -28,7 +37,7 @@ export function AdminSidebar() {
       </div>
 
       <nav className="space-y-1 p-4">
-        {adminNavigation.map((item) => {
+        {visibleNavigation.map((item) => {
           const isActive =
             pathname === item.href ||
             (item.href !== routes.admin.dashboard &&

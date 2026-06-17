@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { routes } from "@/config/routes";
 import { Button } from "@/components/shared";
+import { AdminUserMenu } from "./admin-user-menu";
 
 export function AdminHeader() {
   return (
@@ -17,6 +18,7 @@ export function AdminHeader() {
         <Button variant="outline" size="sm" render={<Link href={routes.public.home} />}>
           View Site
         </Button>
+        <AdminUserMenu />
       </div>
     </header>
   );

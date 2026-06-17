@@ -1,43 +1,36 @@
-import Link from "next/link";
+import { Suspense } from "react";
+import type { Metadata } from "next";
 
-import { routes } from "@/config/routes";
-import { Button, Input, PageHeader } from "@/components/shared";
+import { LoginForm } from "@/features/auth/components";
+import { appConfig } from "@/config/app";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: `Sign in to the ${appConfig.name} administration workspace`,
+};
 
 export default function LoginPage() {
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Sign in"
-        description="Access your EstateFlow workspace"
-      />
+      <div className="space-y-2">
+        <p className="text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
+          Administration
+        </p>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight">
+          Welcome back
+        </h1>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          Sign in to manage listings, content, and team operations from your
+          workspace.
+        </p>
+      </div>
 
-      <form className="space-y-4">
-        <Input
-          label="Email"
-          name="email"
-          type="email"
-          placeholder="you@company.com"
-          autoComplete="email"
-        />
-        <Input
-          label="Password"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="current-password"
-        />
-        <Button type="submit" className="w-full">
-          Sign in
-        </Button>
-      </form>
+      <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-muted" />}>
+        <LoginForm />
+      </Suspense>
 
-      <p className="text-center text-sm text-muted-foreground">
-        <Link
-          href={routes.public.home}
-          className="font-medium text-primary hover:underline"
-        >
-          Return to website
-        </Link>
+      <p className="text-center text-xs text-muted-foreground">
+        Authorized personnel only. Activity is monitored for security purposes.
       </p>
     </div>
   );
