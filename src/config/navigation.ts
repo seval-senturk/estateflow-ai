@@ -26,6 +26,7 @@ export interface AdminNavItem extends NavItem {
 export const publicNavigation: NavItem[] = [
   { label: "Ana Sayfa", href: routes.public.home },
   { label: "İlanlar", href: routes.public.properties },
+  { label: "Blog", href: routes.public.blog },
   { label: "Hakkımızda", href: routes.public.about },
   { label: "İletişim", href: routes.public.contact },
 ];
