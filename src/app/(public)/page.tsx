@@ -1,40 +1,80 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import { appConfig } from "@/config/app";
-import { routes } from "@/config/routes";
-import { Button } from "@/components/shared";
+import { PropertySearchHero } from "@/features/website/components";
+import {
+  CategorySection,
+  CtaSection,
+  WhyChooseUsSection,
+} from "@/features/website/components";
+import { PropertyShowcase } from "@/features/website/components";
+import { propertyService } from "@/features/properties/services";
+import { buildOrganizationJsonLd } from "@/features/website/lib/structured-data";
+import { seoConfig } from "@/config/seo";
 
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: "Ana Sayfa",
+  description:
+    "Satılık ve kiralık emlak ilanları. Profesyonel danışmanlık ve güvenilir hizmet.",
+  openGraph: {
+    title: `${seoConfig.defaultTitle} | Ana Sayfa`,
+    description: seoConfig.defaultDescription,
+    url: seoConfig.siteUrl,
+  },
+  alternates: { canonical: seoConfig.siteUrl },
+};
+
+export default async function HomePage() {
+  const [featuredResult, latestResult] = await Promise.all([
+    propertyService.listFeatured(6),
+    propertyService.listPublished({ page: 1, pageSize: 6, sortBy: "publishedAt", sortOrder: "desc" }),
+  ]);
+
+  const organizationJsonLd = buildOrganizationJsonLd();
+
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.92_0.03_250),transparent_60%)]" />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
 
-      <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-        <div className="max-w-2xl space-y-6">
-          <p className="text-sm font-medium tracking-wide text-primary uppercase">
-            Real Estate Operations
-          </p>
-          <h1 className="font-heading text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            {appConfig.name}
-          </h1>
-          <p className="text-lg leading-relaxed text-muted-foreground">
-            {appConfig.tagline}. Coordinate listings, client relationships, and
-            team workflows from one professional platform.
-          </p>
-          <div className="flex flex-wrap gap-3 pt-2">
-            <Button size="lg" render={<Link href={routes.public.properties} />}>
-              Browse Properties
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              render={<Link href={routes.auth.login} />}
-            >
-              Agent Sign In
-            </Button>
+      <section className="border-b border-border bg-muted/20">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="mx-auto max-w-3xl space-y-6 text-center">
+            <p className="text-sm font-medium tracking-wide text-primary uppercase">
+              Güvenilir Emlak Danışmanlığı
+            </p>
+            <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
+              Hayalinizdeki mülkü keşfedin
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Satılık ve kiralık portföyümüzü inceleyin. Uzman danışmanlarımız size
+              özel çözümler sunar.
+            </p>
+            <PropertySearchHero />
           </div>
         </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl space-y-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <PropertyShowcase
+          title="Öne Çıkan İlanlar"
+          description="Seçkin portföyümüzden özenle seçilmiş ilanlar."
+          properties={featuredResult.items}
+        />
+
+        <WhyChooseUsSection />
+
+        <CategorySection />
+
+        <PropertyShowcase
+          title="Son Eklenen İlanlar"
+          description="Portföyümüze yeni eklenen güncel ilanlar."
+          properties={latestResult.items}
+        />
+
+        <CtaSection />
       </div>
-    </section>
+    </>
   );
 }
