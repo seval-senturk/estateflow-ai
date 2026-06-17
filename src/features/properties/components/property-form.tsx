@@ -260,6 +260,11 @@ export function PropertyForm({ mode, lookup, property }: PropertyFormProps) {
               />
             </div>
             <FormField
+              name="metaKeywords"
+              label="Anahtar Kelimeler"
+              placeholder="emlak, konut, istanbul"
+            />
+            <FormField
               name="canonicalUrl"
               label="Canonical URL"
               placeholder="https://example.com/properties/ilan-slug"

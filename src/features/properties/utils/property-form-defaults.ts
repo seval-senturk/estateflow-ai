@@ -60,6 +60,7 @@ export function buildPropertyFormDefaults(
       publishedAt: property.publishedAt,
       metaTitle: property.metaTitle,
       metaDescription: property.metaDescription,
+      metaKeywords: property.metaKeywords ?? "",
       canonicalUrl: property.canonicalUrl ?? "",
       ogImage: property.ogImage ?? "",
       features,

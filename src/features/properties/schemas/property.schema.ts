@@ -49,6 +49,7 @@ export const propertyFormSchema = z.object({
   publishedAt: z.string().optional(),
   metaTitle: z.string().trim().max(160).optional(),
   metaDescription: z.string().trim().max(320).optional(),
+  metaKeywords: z.string().trim().max(255).optional(),
   canonicalUrl: z.string().url("Geçerli bir URL girin").optional().or(z.literal("")),
   ogImage: z.string().url("Geçerli bir görsel URL'si girin").optional().or(z.literal("")),
   features: z.array(propertyFeatureInputSchema),

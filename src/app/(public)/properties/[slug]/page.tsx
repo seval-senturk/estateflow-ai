@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Breadcrumb } from "@/components/shared";
 import { PublicPropertyGallery } from "@/features/media/components";
 import { routes } from "@/config/routes";
 import {
@@ -16,7 +16,12 @@ import {
   PropertyMap,
   PropertyShowcase,
 } from "@/features/website/components";
-import { buildPropertyJsonLd } from "@/features/website/lib/structured-data";
+import {
+  buildBreadcrumbListJsonLd,
+  buildPropertyJsonLd,
+} from "@/features/website/lib/structured-data";
+import { buildPageMetadata } from "@/lib/seo";
+import { propertyDetailBreadcrumb } from "@/lib/seo/breadcrumbs";
 
 interface PublicPropertyDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -32,22 +37,17 @@ export async function generateMetadata({
     return { title: "İlan Bulunamadı" };
   }
 
-  return {
+  return buildPageMetadata({
     title: property.metaTitle ?? property.title,
     description: property.metaDescription ?? property.shortDescription ?? undefined,
-    openGraph: {
-      title: property.metaTitle ?? property.title,
-      description: property.metaDescription ?? property.shortDescription ?? undefined,
-      images: property.ogImage
-        ? [{ url: property.ogImage }]
-        : property.gallery.images.length > 0
-          ? property.gallery.images.map((img) => ({ url: img.url }))
-          : undefined,
-    },
-    alternates: property.canonicalUrl
-      ? { canonical: property.canonicalUrl }
-      : { canonical: routes.public.propertyDetail(property.slug) },
-  };
+    keywords: property.metaKeywords,
+    canonicalPath: routes.public.propertyDetail(property.slug),
+    canonicalUrl: property.canonicalUrl,
+    ogImage:
+      property.ogImage ??
+      property.primaryImageUrl ??
+      property.gallery.images[0]?.url,
+  });
 }
 
 export default async function PublicPropertyDetailPage({
@@ -63,6 +63,8 @@ export default async function PublicPropertyDetailPage({
   const related = await propertyService.getRelatedProperties(property.id, property.city);
   const activeFeatures = property.features.filter((feature) => feature.value === "true");
   const propertyJsonLd = buildPropertyJsonLd(property);
+  const breadcrumbs = propertyDetailBreadcrumb(property.title, property.slug);
+  const breadcrumbJsonLd = buildBreadcrumbListJsonLd(breadcrumbs);
 
   return (
     <>
@@ -70,19 +72,13 @@ export default async function PublicPropertyDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(propertyJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
-          <Link href={routes.public.home} className="hover:text-foreground">
-            Ana Sayfa
-          </Link>
-          <span className="mx-2">/</span>
-          <Link href={routes.public.properties} className="hover:text-foreground">
-            İlanlar
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-foreground">{property.title}</span>
-        </nav>
+        <Breadcrumb items={breadcrumbs} className="mb-6" />
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-10">

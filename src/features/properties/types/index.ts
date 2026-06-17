@@ -77,6 +77,7 @@ export interface PropertyFormValues {
   publishedAt?: string;
   metaTitle?: string;
   metaDescription?: string;
+  metaKeywords?: string;
   canonicalUrl?: string;
   ogImage?: string;
   features: PropertyFeatureInput[];
@@ -164,6 +165,7 @@ export interface PublicPropertyDetail extends PublicPropertyListItem {
   heatingType: HeatingType | null;
   metaTitle: string | null;
   metaDescription: string | null;
+  metaKeywords: string | null;
   canonicalUrl: string | null;
   ogImage: string | null;
   features: Array<{ name: string; value: string }>;

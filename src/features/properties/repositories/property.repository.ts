@@ -390,6 +390,7 @@ export class PropertyRepository extends BaseRepository {
       publishedAt: property.publishedAt,
       metaTitle: property.metaTitle,
       metaDescription: property.metaDescription,
+      metaKeywords: property.metaKeywords,
       canonicalUrl: property.canonicalUrl,
       ogImage: property.ogImage,
       features: property.features.map((entry) => ({
@@ -446,6 +447,7 @@ export class PropertyRepository extends BaseRepository {
             : null,
         metaTitle: input.metaTitle,
         metaDescription: input.metaDescription,
+        metaKeywords: input.metaKeywords || null,
         canonicalUrl: input.canonicalUrl || null,
         ogImage: input.ogImage || null,
         agentId: userId,
@@ -505,6 +507,7 @@ export class PropertyRepository extends BaseRepository {
             : null,
         metaTitle: input.metaTitle,
         metaDescription: input.metaDescription,
+        metaKeywords: input.metaKeywords || null,
         canonicalUrl: input.canonicalUrl || null,
         ogImage: input.ogImage || null,
         ...auditUpdateFields(userId),
@@ -618,6 +621,7 @@ export class PropertyRepository extends BaseRepository {
       publishedAt: property.publishedAt?.toISOString(),
       metaTitle: property.metaTitle ?? undefined,
       metaDescription: property.metaDescription ?? undefined,
+      metaKeywords: property.metaKeywords ?? undefined,
       canonicalUrl: property.canonicalUrl ?? undefined,
       ogImage: property.ogImage ?? undefined,
       viewCount: property.viewCount,
@@ -634,6 +638,14 @@ export class PropertyRepository extends BaseRepository {
         value: entry.value,
       })),
     };
+  }
+
+  async listPublishedSlugs() {
+    return prisma.property.findMany({
+      where: { isPublished: true, ...activeOnly },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    });
   }
 }
 
