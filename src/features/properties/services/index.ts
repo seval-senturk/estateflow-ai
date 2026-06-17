@@ -1,2 +1,1 @@
-﻿// properties / services
-export {};
+﻿export { PropertyService, propertyService } from "./property.service";
