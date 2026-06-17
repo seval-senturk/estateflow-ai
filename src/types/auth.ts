@@ -1,4 +1,5 @@
 import type { Role } from "@/config/roles";
+import type { Permission } from "@/config/permissions";
 
 export interface AuthUser {
   id: string;
@@ -6,6 +7,7 @@ export interface AuthUser {
   name: string;
   image?: string | null;
   role: Role;
+  permissions: Permission[];
 }
 
 export interface SessionData {
