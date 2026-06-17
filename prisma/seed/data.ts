@@ -115,12 +115,11 @@ export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
 };
 
 export const PROPERTY_STATUSES = [
-  { name: "Draft", slug: "draft", description: "Property is being prepared", color: "#6B7280", sortOrder: 1, isDefault: true },
-  { name: "Active", slug: "active", description: "Property is live and available", color: "#10B981", sortOrder: 2, isDefault: false },
-  { name: "Pending", slug: "pending", description: "Awaiting approval or verification", color: "#F59E0B", sortOrder: 3, isDefault: false },
-  { name: "Sold", slug: "sold", description: "Property has been sold", color: "#3B82F6", sortOrder: 4, isDefault: false },
-  { name: "Rented", slug: "rented", description: "Property has been rented", color: "#8B5CF6", sortOrder: 5, isDefault: false },
-  { name: "Archived", slug: "archived", description: "Property is no longer active", color: "#9CA3AF", sortOrder: 6, isDefault: false },
+  { name: "Taslak", slug: "taslak", description: "İlan hazırlanıyor", color: "#6B7280", sortOrder: 1, isDefault: true },
+  { name: "İncelemede", slug: "incelemede", description: "Onay veya doğrulama bekleniyor", color: "#F59E0B", sortOrder: 2, isDefault: false },
+  { name: "Yayında", slug: "yayinda", description: "İlan aktif ve yayında", color: "#10B981", sortOrder: 3, isDefault: false },
+  { name: "Pasif", slug: "pasif", description: "İlan geçici olarak pasif", color: "#3B82F6", sortOrder: 4, isDefault: false },
+  { name: "Arşiv", slug: "arsiv", description: "İlan arşivlendi", color: "#9CA3AF", sortOrder: 5, isDefault: false },
 ] as const;
 
 export const PROPERTY_CATEGORIES = [
@@ -133,14 +132,18 @@ export const PROPERTY_CATEGORIES = [
 ] as const;
 
 export const PROPERTY_FEATURES = [
-  { name: "Otopark", slug: "otopark", valueType: "BOOLEAN" as const, sortOrder: 1 },
-  { name: "Asansör", slug: "asansor", valueType: "BOOLEAN" as const, sortOrder: 2 },
+  { name: "Asansör", slug: "asansor", valueType: "BOOLEAN" as const, sortOrder: 1 },
+  { name: "Otopark", slug: "otopark", valueType: "BOOLEAN" as const, sortOrder: 2 },
   { name: "Güvenlik", slug: "guvenlik", valueType: "BOOLEAN" as const, sortOrder: 3 },
-  { name: "Havuz", slug: "havuz", valueType: "BOOLEAN" as const, sortOrder: 4 },
-  { name: "Balkon", slug: "balkon", valueType: "BOOLEAN" as const, sortOrder: 5 },
-  { name: "Eşyalı", slug: "esyali", valueType: "BOOLEAN" as const, sortOrder: 6 },
-  { name: "Site İçinde", slug: "site-icinde", valueType: "BOOLEAN" as const, sortOrder: 7 },
-  { name: "Deniz Manzaralı", slug: "deniz-manzarali", valueType: "BOOLEAN" as const, sortOrder: 8 },
+  { name: "Bahçe", slug: "bahce", valueType: "BOOLEAN" as const, sortOrder: 4 },
+  { name: "Havuz", slug: "havuz", valueType: "BOOLEAN" as const, sortOrder: 5 },
+  { name: "Ebeveyn Banyosu", slug: "ebeveyn-banyosu", valueType: "BOOLEAN" as const, sortOrder: 6 },
+  { name: "Fiber İnternet", slug: "fiber-internet", valueType: "BOOLEAN" as const, sortOrder: 7 },
+  { name: "Merkezi Sistem", slug: "merkezi-sistem", valueType: "BOOLEAN" as const, sortOrder: 8 },
+  { name: "Balkon", slug: "balkon", valueType: "BOOLEAN" as const, sortOrder: 9 },
+  { name: "Eşyalı", slug: "esyali", valueType: "BOOLEAN" as const, sortOrder: 10 },
+  { name: "Site İçinde", slug: "site-icinde", valueType: "BOOLEAN" as const, sortOrder: 11 },
+  { name: "Deniz Manzaralı", slug: "deniz-manzarali", valueType: "BOOLEAN" as const, sortOrder: 12 },
 ] as const;
 
 export const BLOG_CATEGORIES = [

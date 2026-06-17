@@ -2,8 +2,8 @@ import { appConfig } from "@/config/app";
 
 export function formatCurrency(
   amount: number,
-  locale = appConfig.locale,
-  currency = appConfig.defaultCurrency,
+  locale: string = appConfig.locale,
+  currency: string = appConfig.defaultCurrency,
 ): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",
