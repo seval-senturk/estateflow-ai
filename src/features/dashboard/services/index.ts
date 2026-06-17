@@ -1,2 +1,1 @@
-﻿// dashboard / services
-export {};
+﻿export { DashboardService, dashboardService } from "./dashboard.service";
