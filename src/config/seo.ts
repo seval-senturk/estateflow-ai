@@ -11,7 +11,7 @@ export const seoConfig = {
   siteUrl: baseUrl,
   openGraph: {
     type: "website" as const,
-    locale: "en_US",
+    locale: "tr_TR",
     siteName: appConfig.name,
   },
   twitter: {

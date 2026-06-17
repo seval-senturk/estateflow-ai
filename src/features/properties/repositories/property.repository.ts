@@ -12,7 +12,7 @@ import {
 import { BaseRepository } from "@/repositories/base.repository";
 import { propertyMediaRepository } from "@/features/media/repositories";
 
-import type { PropertyDetail, PropertyListFilters, PropertyListItem, PropertyListResult, PublicPropertyDetail, PublicPropertyListItem } from "../types";
+import type { PropertyDetail, PropertyListFilters, PropertyListItem, PropertyListResult, PublicPropertyDetail, PublicPropertyFilters, PublicPropertyListItem } from "../types";
 import type { PropertyFormInput } from "../schemas";
 
 const propertyListInclude = {
@@ -122,13 +122,34 @@ export class PropertyRepository extends BaseRepository {
     });
   }
 
-  async findPublicMany(page = 1, pageSize = 12) {
-    const pageSizeValue = pageSize;
-    const { skip, take } = toPrismaPagination({ page, pageSize: pageSizeValue });
+  async findPublicMany(filters: PublicPropertyFilters = {}) {
+    const page = filters.page ?? 1;
+    const pageSize = filters.pageSize ?? 12;
+    const { skip, take } = toPrismaPagination({ page, pageSize });
 
     const where: Prisma.PropertyWhereInput = {
       ...activeOnly,
       isPublished: true,
+      ...(filters.isFeatured !== undefined ? { isFeatured: filters.isFeatured } : {}),
+      ...(filters.listingType ? { listingType: filters.listingType } : {}),
+      ...(filters.propertyKind ? { propertyKind: filters.propertyKind } : {}),
+      ...(filters.city
+        ? { location: { city: { contains: filters.city, mode: "insensitive" } } }
+        : {}),
+      ...(filters.search
+        ? {
+            OR: [
+              { title: { contains: filters.search, mode: "insensitive" } },
+              { shortDescription: { contains: filters.search, mode: "insensitive" } },
+              { location: { city: { contains: filters.search, mode: "insensitive" } } },
+              { location: { district: { contains: filters.search, mode: "insensitive" } } },
+            ],
+          }
+        : {}),
+    };
+
+    const orderBy: Prisma.PropertyOrderByWithRelationInput = {
+      [filters.sortBy ?? "publishedAt"]: filters.sortOrder ?? "desc",
     };
 
     const [items, total] = await Promise.all([
@@ -136,13 +157,14 @@ export class PropertyRepository extends BaseRepository {
         where,
         include: {
           location: true,
+          category: true,
           images: {
             include: { media: true },
             orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
             take: 1,
           },
         },
-        orderBy: { publishedAt: "desc" },
+        orderBy,
         skip,
         take,
       }),
@@ -174,10 +196,11 @@ export class PropertyRepository extends BaseRepository {
         publishedAt: property.publishedAt,
         primaryImageUrl: imageUrl,
         primaryImagePublicId: primaryImage?.media?.publicId ?? null,
+        categoryName: property.category?.name ?? null,
       };
     });
 
-    const paginated = toPaginatedResult(mapped, total, { page, pageSize: pageSizeValue });
+    const paginated = toPaginatedResult(mapped, total, { page, pageSize });
 
     return {
       items: paginated.data,
@@ -186,6 +209,59 @@ export class PropertyRepository extends BaseRepository {
       pageSize: paginated.pageSize,
       totalPages: paginated.totalPages,
     };
+  }
+
+  async findRelatedPublic(propertyId: string, city: string | null, limit = 3) {
+    if (!city) return [];
+
+    const items = await prisma.property.findMany({
+      where: {
+        ...activeOnly,
+        isPublished: true,
+        NOT: { id: propertyId },
+        location: { city: { equals: city, mode: "insensitive" } },
+      },
+      include: {
+        location: true,
+        category: true,
+        images: {
+          include: { media: true },
+          orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
+          take: 1,
+        },
+      },
+      orderBy: { publishedAt: "desc" },
+      take: limit,
+    });
+
+    return items.map((property) => {
+      const primaryImage = property.images[0];
+      const imageUrl =
+        primaryImage?.media?.secureUrl ??
+        primaryImage?.media?.url ??
+        primaryImage?.url ??
+        null;
+
+      return {
+        id: property.id,
+        title: property.title,
+        slug: property.slug,
+        shortDescription: property.shortDescription,
+        price: Number(property.price),
+        currency: property.currency,
+        listingType: property.listingType,
+        propertyKind: property.propertyKind,
+        city: property.location?.city ?? null,
+        district: property.location?.district ?? null,
+        roomCount: property.roomCount,
+        grossArea: decimalToNumber(property.grossArea),
+        isFeatured: property.isFeatured,
+        publishedAt: property.publishedAt,
+        primaryImageUrl: imageUrl,
+        primaryImagePublicId: primaryImage?.media?.publicId ?? null,
+        categoryName: property.category?.name ?? null,
+      } satisfies PublicPropertyListItem;
+    });
   }
 
   async findById(id: string): Promise<PropertyDetail | null> {
@@ -228,6 +304,8 @@ export class PropertyRepository extends BaseRepository {
       district: property.location?.district ?? null,
       neighborhood: property.location?.neighborhood ?? null,
       address: property.location?.address ?? null,
+      latitude: decimalToNumber(property.location?.latitude),
+      longitude: decimalToNumber(property.location?.longitude),
       roomCount: property.roomCount,
       grossArea: decimalToNumber(property.grossArea),
       netArea: decimalToNumber(property.netArea),
@@ -248,6 +326,7 @@ export class PropertyRepository extends BaseRepository {
       })),
       primaryImageUrl: primaryImage?.url ?? null,
       primaryImagePublicId: primaryImage?.publicId ?? null,
+      categoryName: property.category?.name ?? null,
       gallery,
     };
   }

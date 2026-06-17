@@ -116,12 +116,27 @@ export interface PublicPropertyListItem {
   publishedAt: Date | null;
   primaryImageUrl: string | null;
   primaryImagePublicId: string | null;
+  categoryName: string | null;
+}
+
+export interface PublicPropertyFilters {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  city?: string;
+  listingType?: import("@prisma/client").ListingType;
+  propertyKind?: import("@prisma/client").PropertyKind;
+  isFeatured?: boolean;
+  sortBy?: "publishedAt" | "price";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface PublicPropertyDetail extends PublicPropertyListItem {
   description: string | null;
   neighborhood: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   netArea: number | null;
   bathroomCount: number | null;
   buildingAge: number | null;

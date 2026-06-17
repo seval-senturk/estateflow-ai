@@ -6,7 +6,7 @@ import { PROPERTY_ERROR_CODES } from "../constants";
 import { propertyRepository } from "../repositories";
 import { propertyFormSchema, propertyListFiltersSchema } from "../schemas";
 import type { PropertyFormInput, PropertyListFiltersInput } from "../schemas";
-import type { PropertyDetail, PropertyListResult } from "../types";
+import type { PropertyDetail, PropertyListResult, PublicPropertyFilters } from "../types";
 
 export class PropertyService extends BaseService {
   async list(filters: PropertyListFiltersInput): AsyncActionResult<PropertyListResult> {
@@ -56,8 +56,16 @@ export class PropertyService extends BaseService {
     return propertyRepository.findBySlug(slug, true);
   }
 
-  async listPublished(page = 1, pageSize = 12) {
-    return propertyRepository.findPublicMany(page, pageSize);
+  async listPublished(filters: PublicPropertyFilters = {}) {
+    return propertyRepository.findPublicMany(filters);
+  }
+
+  async listFeatured(limit = 6) {
+    return propertyRepository.findPublicMany({ isFeatured: true, pageSize: limit, page: 1 });
+  }
+
+  async getRelatedProperties(propertyId: string, city: string | null) {
+    return propertyRepository.findRelatedPublic(propertyId, city, 3);
   }
 
   async create(input: PropertyFormInput, userId: string): AsyncActionResult<{ id: string }> {

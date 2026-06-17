@@ -24,10 +24,10 @@ export interface AdminNavItem extends NavItem {
 }
 
 export const publicNavigation: NavItem[] = [
-  { label: "Home", href: routes.public.home },
-  { label: "Properties", href: routes.public.properties },
-  { label: "Blog", href: routes.public.blog },
-  { label: "Contact", href: routes.public.contact },
+  { label: "Ana Sayfa", href: routes.public.home },
+  { label: "İlanlar", href: routes.public.properties },
+  { label: "Hakkımızda", href: routes.public.about },
+  { label: "İletişim", href: routes.public.contact },
 ];
 
 export const adminNavigation: AdminNavItem[] = [
