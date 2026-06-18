@@ -75,6 +75,8 @@ export const PERMISSIONS = [
   { name: "Create Leads", slug: "leads:create", module: "leads" },
   { name: "Update Leads", slug: "leads:update", module: "leads" },
   { name: "Delete Leads", slug: "leads:delete", module: "leads" },
+  { name: "Assign Leads", slug: "leads:assign", module: "leads" },
+  { name: "Export Leads", slug: "leads:export", module: "leads" },
 ] as const;
 
 export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
@@ -108,6 +110,7 @@ export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
     "leads:read",
     "leads:create",
     "leads:update",
+    "leads:assign",
   ],
   VIEWER: [
     "properties:read",
@@ -158,12 +161,14 @@ export const BLOG_CATEGORIES = [
 ] as const;
 
 export const LEAD_STATUSES = [
-  { name: "New", slug: "new", description: "Newly created lead", color: "#3B82F6", sortOrder: 1, isDefault: true },
-  { name: "Contacted", slug: "contacted", description: "Initial contact made", color: "#F59E0B", sortOrder: 2, isDefault: false },
-  { name: "Qualified", slug: "qualified", description: "Lead is qualified", color: "#8B5CF6", sortOrder: 3, isDefault: false },
-  { name: "Negotiation", slug: "negotiation", description: "In negotiation phase", color: "#EC4899", sortOrder: 4, isDefault: false },
-  { name: "Won", slug: "won", description: "Lead converted successfully", color: "#10B981", sortOrder: 5, isDefault: false },
-  { name: "Lost", slug: "lost", description: "Lead lost or declined", color: "#EF4444", sortOrder: 6, isDefault: false },
+  { name: "Yeni", slug: "yeni", description: "Yeni oluşturulan lead", color: "#3B82F6", sortOrder: 1, isDefault: true },
+  { name: "İletişim Kuruldu", slug: "iletisim-kuruldu", description: "İlk temas sağlandı", color: "#F59E0B", sortOrder: 2, isDefault: false },
+  { name: "Randevu Planlandı", slug: "randevu-planlandi", description: "Randevu oluşturuldu", color: "#8B5CF6", sortOrder: 3, isDefault: false },
+  { name: "Teklif Verildi", slug: "teklif-verildi", description: "Teklif paylaşıldı", color: "#EC4899", sortOrder: 4, isDefault: false },
+  { name: "Müzakere", slug: "muzakere", description: "Müzakere aşamasında", color: "#6366F1", sortOrder: 5, isDefault: false },
+  { name: "Kazanıldı", slug: "kazanildi", description: "Başarıyla dönüştürüldü", color: "#10B981", sortOrder: 6, isDefault: false },
+  { name: "Kaybedildi", slug: "kaybedildi", description: "Lead kaybedildi", color: "#EF4444", sortOrder: 7, isDefault: false },
+  { name: "Arşivlendi", slug: "arsivlendi", description: "Arşive alındı", color: "#9CA3AF", sortOrder: 8, isDefault: false },
 ] as const;
 
 export const MEDIA_FOLDERS = [

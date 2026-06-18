@@ -47,6 +47,8 @@ export const permissions = {
     create: "leads:create",
     update: "leads:update",
     delete: "leads:delete",
+    assign: "leads:assign",
+    export: "leads:export",
   },
 } as const;
 
@@ -97,6 +99,7 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.leads.read,
     permissions.leads.create,
     permissions.leads.update,
+    permissions.leads.assign,
   ],
   [roles.VIEWER]: [
     permissions.properties.read,

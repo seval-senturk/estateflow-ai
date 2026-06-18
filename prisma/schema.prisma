@@ -87,7 +87,19 @@ enum LeadSource {
   PROPERTY_INQUIRY
   CONTACT_FORM
   WALK_IN
+  WHATSAPP
+  MANUAL_ENTRY
   OTHER
+}
+
+enum LeadActivityType {
+  LEAD_CREATED
+  LEAD_UPDATED
+  STATUS_CHANGED
+  NOTE_ADDED
+  AGENT_ASSIGNED
+  AGENT_UNASSIGNED
+  PROPERTY_LINKED
 }
 
 enum InquiryStatus {
@@ -221,6 +233,8 @@ model User {
   sessions           Session[]
   userSessions       UserSession[]
   assignedLeads      Lead[]              @relation("LeadAssignedTo")
+  createdLeads       Lead[]              @relation("LeadCreatedBy")
+  leadActivities     LeadActivity[]
   leadNotes          LeadNote[]
   blogPosts          BlogPost[]
   blogComments       BlogComment[]
@@ -610,24 +624,27 @@ model PropertyFavorite {
 }
 
 model PropertyInquiry {
-  id          String        @id @default(cuid())
-  propertyId  String
-  name        String
-  email       String
-  phone       String?
-  message     String?       @db.Text
-  status      InquiryStatus @default(NEW)
-  source      LeadSource    @default(PROPERTY_INQUIRY)
+  id           String        @id @default(cuid())
+  propertyId   String
+  leadId       String?
+  name         String
+  email        String
+  phone        String?
+  message      String?       @db.Text
+  status       InquiryStatus @default(NEW)
+  source       LeadSource    @default(PROPERTY_INQUIRY)
   assignedToId String?
-  respondedAt DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deletedAt   DateTime?
+  respondedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
 
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  lead       Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
   assignedTo User?    @relation("PropertyInquiryAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
 
   @@index([propertyId])
+  @@index([leadId])
   @@index([email])
   @@index([status])
   @@index([assignedToId])
@@ -818,14 +835,19 @@ model Lead {
   currency     Currency?  @default(TRY)
   notes        String?    @db.Text
   convertedAt  DateTime?
+  createdById  String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   deletedAt    DateTime?
 
-  status     LeadStatus @relation(fields: [statusId], references: [id])
-  assignedTo User?      @relation("LeadAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
-  property   Property?  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  status     LeadStatus     @relation(fields: [statusId], references: [id])
+  assignedTo User?          @relation("LeadAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdBy  User?          @relation("LeadCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  property   Property?      @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   leadNotes  LeadNote[]
+  activities LeadActivity[]
+  contactRequests ContactRequest[]
+  propertyInquiries PropertyInquiry[]
 
   @@index([email])
   @@index([phone])
@@ -854,8 +876,29 @@ model LeadNote {
   @@map("lead_notes")
 }
 
+model LeadActivity {
+  id          String           @id @default(cuid())
+  leadId      String
+  userId      String?
+  type        LeadActivityType
+  title       String
+  description String?          @db.Text
+  metadata    Json?
+  createdAt   DateTime         @default(now())
+
+  lead Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("lead_activities")
+}
+
 model ContactRequest {
   id          String               @id @default(cuid())
+  leadId      String?
   name        String
   email       String
   phone       String?
@@ -868,7 +911,10 @@ model ContactRequest {
   updatedAt   DateTime             @updatedAt
   deletedAt   DateTime?
 
+  lead Lead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
   @@index([email])
+  @@index([leadId])
   @@index([status])
   @@index([createdAt])
   @@index([deletedAt])
