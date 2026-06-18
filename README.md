@@ -4,9 +4,9 @@ Modern Real Estate Management Platform — a production-oriented portfolio proje
 
 ## Project Overview
 
-EstateFlow AI is designed as a professional real estate operations platform for agents, administrators, and property teams. The goal is not a demo site, but a maintainable product foundation that can grow into a full CRM with listings, content, media, and client workflows.
+EstateFlow AI is a production-oriented real estate operations platform for agents, administrators, and property teams. It includes property management, blog CMS, media library, CRM lead pipeline, advanced search, activity/audit logging, and analytics — built as a maintainable product foundation rather than a demo site.
 
-**Phase 1 (completed)** established the application foundation: folder architecture, layout system, shared components, configuration layer, authentication skeleton, database schema, and feature module scaffolding — without business feature implementation.
+**Current status:** Phases 1–12 complete. Phase 12 focused on performance optimization and production hardening.
 
 ## Architecture
 
@@ -79,40 +79,52 @@ src/
 | Auth | NextAuth (Auth.js v5) |
 | Validation | Zod |
 | Forms | React Hook Form |
-| Server State | TanStack Query |
+| Server State | Session via NextAuth (client refetch) |
+| Media CDN | Cloudinary (WebP/AVIF via Next Image) |
+| Caching | `unstable_cache` + ISR (`revalidate`) on public routes |
 | Deployment | Vercel (target) |
 
 ## Development Roadmap
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| **Phase 1** | Architecture & foundation | ✅ Complete |
-| **Phase 2** | Authentication & user management | Planned |
-| **Phase 3** | Property CRUD & listings | Planned |
-| **Phase 4** | Blog & content management | Planned |
-| **Phase 5** | Media library (Cloudinary) | Planned |
-| **Phase 6** | Favorites, contact, search | Planned |
-| **Phase 7** | Dashboard analytics & polish | Planned |
+| **Phase 1** | Architecture & foundation | ✅ |
+| **Phase 2** | Database model & Prisma | ✅ |
+| **Phase 3** | Authentication & RBAC | ✅ |
+| **Phase 4** | Dashboard foundation | ✅ |
+| **Phase 5** | Property management | ✅ |
+| **Phase 6** | Media management (Cloudinary) | ✅ |
+| **Phase 7** | Public website | ✅ |
+| **Phase 8** | Search experience | ✅ |
+| **Phase 9** | Blog CMS & SEO | ✅ |
+| **Phase 10** | CRM & lead management | ✅ |
+| **Phase 11** | Activity logs, audit & analytics | ✅ |
+| **Phase 12** | Performance & production hardening | ✅ |
+
+## Performance & Production (Phase 12)
+
+- **Server rendering:** Root layout no longer forces global `auth()` — public routes can use ISR/cache
+- **Public data cache:** `src/lib/cache/public-data.ts` with 60s revalidation for properties/blog
+- **Dynamic imports:** TipTap editor, property gallery, media library, Leaflet map, kanban board
+- **Dashboard:** Consolidated `getAdminDashboardData()` — single optimized query batch (~25 → ~12 queries)
+- **Database:** Composite indexes on `Property`, `BlogPost`, `Lead`; blog list excludes `content` field
+- **Security headers:** `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` via `next.config.ts`
+- **Images:** AVIF/WebP formats, tuned `deviceSizes`, 24h `minimumCacheTTL`
+- **Observability:** Hook points in `src/lib/logging/observability.ts` for Sentry/PostHog/GA/OpenTelemetry
 
 ## Current Progress
 
-Phase 1 deliverables:
+Delivered modules:
 
-- [x] Feature-based folder structure (10 modules scaffolded)
-- [x] Public, Admin, and Auth layouts
-- [x] Shared component layer (Button, Input, DataTable, Search, PageHeader, …)
-- [x] Provider stack (Theme, Session, Query, Notification)
-- [x] Configuration system (routes, navigation, permissions, roles)
-- [x] Global error handling and logging type foundations
-- [x] Prisma schema (User, Account, Session)
-- [x] NextAuth skeleton with middleware route protection
-- [x] Utility helpers (formatters, validators, slug)
+- [x] Property CRUD, publish workflow, public listings & detail
+- [x] Blog CMS with TipTap, categories, tags, SEO metadata
+- [x] Media library with Cloudinary upload
+- [x] CRM lead pipeline, notes, activities, kanban foundation
+- [x] Advanced property search with map view
+- [x] Activity logs, audit trail, login history
+- [x] Analytics dashboard widgets
+- [x] RBAC with role-permission middleware
 - [x] Production build verified
-
-## Phase Status
-
-**Phase 1 — Foundation:** Complete  
-**Phase 2 — Next:** Authentication integration, user repository, protected admin workflows
 
 ---
 
@@ -144,11 +156,13 @@ Required variables:
 - `DATABASE_URL` — PostgreSQL connection string
 - `AUTH_SECRET` — generate with `openssl rand -base64 32`
 - `AUTH_URL` — application URL (e.g. `http://localhost:3000`)
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — media uploads
 
 ### Database
 
 ```bash
-npm run db:push
+npm run db:push    # or npm run db:migrate:deploy in production
+npm run db:seed    # optional demo data
 ```
 
 ### Development
@@ -169,6 +183,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run db:generate` | Generate Prisma client |
 | `npm run db:push` | Push schema to database |
 | `npm run db:migrate` | Run migrations |
+| `npm run db:migrate:deploy` | Deploy migrations (production) |
+| `npm run db:seed` | Seed reference data |
 | `npm run db:studio` | Open Prisma Studio |
 
 ## License
