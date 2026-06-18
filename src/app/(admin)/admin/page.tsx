@@ -1,9 +1,13 @@
 import { PageHeader } from "@/components/shared";
 import { DashboardWidgets } from "@/features/dashboard/components";
 import { dashboardService } from "@/features/dashboard/services";
+import { crmService } from "@/features/crm/services";
 
 export default async function AdminDashboardPage() {
-  const stats = await dashboardService.getStats();
+  const [stats, crmStats] = await Promise.all([
+    dashboardService.getStats(),
+    crmService.getDashboardStats(),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -11,7 +15,7 @@ export default async function AdminDashboardPage() {
         title="Operations Dashboard"
         description="Monitor listing inventory, lead flow, and team activity from a single workspace."
       />
-      <DashboardWidgets stats={stats} />
+      <DashboardWidgets stats={stats} crmStats={crmStats} />
     </div>
   );
 }
