@@ -1,17 +1,9 @@
 import { PageHeader } from "@/components/shared";
 import { DashboardWidgets } from "@/features/dashboard/components";
 import { dashboardService } from "@/features/dashboard/services";
-import { crmService } from "@/features/crm/services";
-import { analyticsService } from "@/features/analytics/services";
-import { logsService } from "@/features/logs/services";
 
 export default async function AdminDashboardPage() {
-  const [stats, crmStats, analytics, recentActivities] = await Promise.all([
-    dashboardService.getStats(),
-    crmService.getDashboardStats(),
-    analyticsService.getSnapshot(),
-    logsService.getRecentActivity(8),
-  ]);
+  const dashboard = await dashboardService.getAdminDashboardData();
 
   return (
     <div className="space-y-8">
@@ -20,10 +12,11 @@ export default async function AdminDashboardPage() {
         description="Monitor listing inventory, lead flow, and team activity from a single workspace."
       />
       <DashboardWidgets
-        stats={stats}
-        crmStats={crmStats}
-        analytics={analytics}
-        recentActivities={recentActivities}
+        stats={dashboard.stats}
+        crmStats={dashboard.crmStats}
+        analytics={dashboard.analytics}
+        recentActivities={dashboard.recentActivities}
+        latestProperties={dashboard.latestProperties}
       />
     </div>
   );

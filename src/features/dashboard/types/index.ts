@@ -7,6 +7,16 @@
   totalUsers: number;
 }
 
+export interface LatestPropertySummary {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  currency: string;
+  isPublished: boolean;
+  createdAt: Date;
+}
+
 export type DashboardWidgetId =
   | "stats"
   | "recent-activity"

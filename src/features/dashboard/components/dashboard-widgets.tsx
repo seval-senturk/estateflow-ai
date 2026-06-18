@@ -1,4 +1,4 @@
-import type { DashboardStats } from "../types";
+import type { DashboardStats, LatestPropertySummary } from "../types";
 import type { CrmDashboardStats } from "@/features/crm/types";
 import type { AnalyticsSnapshot } from "@/features/analytics/types";
 import {
@@ -19,6 +19,7 @@ interface DashboardWidgetsProps {
   crmStats: CrmDashboardStats;
   analytics: AnalyticsSnapshot;
   recentActivities: ActivityLogEntry[];
+  latestProperties: LatestPropertySummary[];
 }
 
 export function DashboardWidgets({
@@ -26,6 +27,7 @@ export function DashboardWidgets({
   crmStats,
   analytics,
   recentActivities,
+  latestProperties,
 }: DashboardWidgetsProps) {
   return (
     <div className="space-y-6">
@@ -39,7 +41,7 @@ export function DashboardWidgets({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <LatestPropertiesWidget />
+        <LatestPropertiesWidget properties={latestProperties} />
         <LeadSummaryWidget stats={crmStats} />
         <CrmAgentPerformanceWidget stats={crmStats} />
         <CrmSourceWidget stats={crmStats} />

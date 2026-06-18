@@ -1,1 +1,1 @@
-﻿export { DashboardService, dashboardService } from "./dashboard.service";
+﻿export { dashboardService, type AdminDashboardData } from "./dashboard.service";
