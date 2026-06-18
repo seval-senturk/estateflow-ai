@@ -38,6 +38,22 @@ const postDetailInclude = {
   tags: { include: { tag: true } },
 } satisfies Prisma.BlogPostInclude;
 
+const postPublicListSelect = {
+  id: true,
+  title: true,
+  slug: true,
+  excerpt: true,
+  coverImage: true,
+  publishedAt: true,
+  viewCount: true,
+  isFeatured: true,
+  category: { select: { id: true, name: true, slug: true } },
+  author: { select: { id: true, name: true, email: true, image: true } },
+  tags: { include: { tag: { select: { id: true, name: true, slug: true } } } },
+} satisfies Prisma.BlogPostSelect;
+
+type PublicListPostRow = Prisma.BlogPostGetPayload<{ select: typeof postPublicListSelect }>;
+
 function mapAuthor(
   author: Prisma.UserGetPayload<{ select: { id: true; name: true; email: true; image: true } }>,
 ) {
@@ -117,9 +133,7 @@ function mapDetail(
   };
 }
 
-function mapPublicListItem(
-  post: Prisma.BlogPostGetPayload<{ include: typeof postDetailInclude }>,
-): PublicBlogListItem {
+function mapPublicListItem(post: PublicListPostRow): PublicBlogListItem {
   return {
     id: post.id,
     title: post.title,
@@ -332,7 +346,7 @@ export class BlogRepository extends BaseRepository {
     const [items, total] = await Promise.all([
       prisma.blogPost.findMany({
         where,
-        include: postDetailInclude,
+        select: postPublicListSelect,
         orderBy: { publishedAt: "desc" },
         skip,
         take,
@@ -340,7 +354,11 @@ export class BlogRepository extends BaseRepository {
       prisma.blogPost.count({ where }),
     ]);
 
-    const paginated = toPaginatedResult(items.map(mapPublicListItem), total, { page, pageSize });
+    const paginated = toPaginatedResult(
+      items.map((post) => mapPublicListItem(post)),
+      total,
+      { page, pageSize },
+    );
 
     return {
       items: paginated.data,
@@ -381,12 +399,12 @@ export class BlogRepository extends BaseRepository {
 
     const items = await prisma.blogPost.findMany({
       where,
-      include: postDetailInclude,
+      select: postPublicListSelect,
       orderBy: { publishedAt: "desc" },
       take: limit,
     });
 
-    return items.map(mapPublicListItem);
+    return items.map((post) => mapPublicListItem(post));
   }
 
   async incrementViewCount(postId: string) {

@@ -36,10 +36,12 @@ const leadDetailInclude = {
   leadNotes: {
     include: { user: { select: { id: true, name: true, email: true } } },
     orderBy: { createdAt: "desc" as const },
+    take: 50,
   },
   activities: {
     include: { user: { select: { id: true, name: true, email: true } } },
     orderBy: { createdAt: "desc" as const },
+    take: 50,
   },
 } satisfies Prisma.LeadInclude;
 
