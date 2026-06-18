@@ -3,7 +3,6 @@ import { DM_Sans, Source_Serif_4 } from "next/font/google";
 
 import { AppProviders } from "@/providers";
 import { seoConfig } from "@/config/seo";
-import { auth } from "@/lib/auth";
 
 import "./globals.css";
 
@@ -28,20 +27,18 @@ export const metadata: Metadata = {
   metadataBase: new URL(seoConfig.siteUrl),
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${dmSans.variable} ${sourceSerif.variable} min-h-screen font-sans antialiased`}
         suppressHydrationWarning
       >
-        <AppProviders session={session}>{children}</AppProviders>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

@@ -12,6 +12,7 @@ import {
   SocialShare,
 } from "@/features/blog/components";
 import { trackBlogView } from "@/features/blog/lib/blog-analytics";
+import { getCachedPublishedBlogBySlug } from "@/lib/cache";
 import { blogService } from "@/features/blog/services";
 import {
   addHeadingIds,
@@ -30,11 +31,13 @@ interface PublicBlogDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: PublicBlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await blogService.getPublishedBySlug(slug);
+  const post = await getCachedPublishedBlogBySlug(slug);
 
   if (!post) {
     return { title: "Yazı Bulunamadı" };
@@ -55,7 +58,7 @@ export async function generateMetadata({
 
 export default async function PublicBlogDetailPage({ params }: PublicBlogDetailPageProps) {
   const { slug } = await params;
-  const post = await blogService.getPublishedBySlug(slug);
+  const post = await getCachedPublishedBlogBySlug(slug);
 
   if (!post) {
     notFound();

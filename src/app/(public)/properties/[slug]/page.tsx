@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Breadcrumb } from "@/components/shared";
-import { PublicPropertyGallery } from "@/features/media/components";
+import { PublicPropertyGalleryLazy as PublicPropertyGallery } from "@/features/media/components/public-property-gallery-lazy";
+import { getCachedPublishedPropertyBySlug } from "@/lib/cache";
 import { routes } from "@/config/routes";
 import {
   formatPropertyPriceValue,
@@ -27,11 +28,13 @@ interface PublicPropertyDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: PublicPropertyDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const property = await propertyService.getPublishedBySlug(slug);
+  const property = await getCachedPublishedPropertyBySlug(slug);
 
   if (!property) {
     return { title: "İlan Bulunamadı" };
@@ -54,7 +57,7 @@ export default async function PublicPropertyDetailPage({
   params,
 }: PublicPropertyDetailPageProps) {
   const { slug } = await params;
-  const property = await propertyService.getPublishedBySlug(slug);
+  const property = await getCachedPublishedPropertyBySlug(slug);
 
   if (!property) {
     notFound();
