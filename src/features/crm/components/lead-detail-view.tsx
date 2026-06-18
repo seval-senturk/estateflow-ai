@@ -7,6 +7,7 @@ import { Pencil, UserMinus, UserPlus } from "lucide-react";
 
 import { Button, Select } from "@/components/shared";
 import { routes } from "@/config/routes";
+import { AiLeadSummaryCard } from "@/features/ai/components";
 import {
   addLeadNoteAction,
   assignLeadAgentAction,
@@ -120,6 +121,8 @@ export function LeadDetailView({ lead, lookup, canUpdate, canAssign }: LeadDetai
         </div>
 
         <div className="space-y-6">
+          <AiLeadSummaryCard leadId={lead.id} />
+
           <section className="rounded-xl border border-border bg-card p-6">
             <h2 className="mb-4 text-lg font-medium">Durum</h2>
             <LeadStatusBadge status={lead.status} className="mb-4" />
