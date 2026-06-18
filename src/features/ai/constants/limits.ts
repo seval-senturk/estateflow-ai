@@ -1,0 +1,4 @@
+export const AI_DEFAULT_MAX_TOKENS = 1500;
+export const AI_DEFAULT_TEMPERATURE = 0.7;
+export const AI_REQUEST_TIMEOUT_MS = 30_000;
+export const AI_RATE_LIMIT_WINDOW_MS = 60_000;

@@ -57,6 +57,10 @@ export const permissions = {
     assign: "leads:assign",
     export: "leads:export",
   },
+  ai: {
+    generate: "ai:generate",
+    read: "ai:read",
+  },
 } as const;
 
 export type Permission = {
@@ -75,6 +79,7 @@ export const allPermissions: Permission[] = [
   ...Object.values(permissions.contact),
   ...Object.values(permissions.favorites),
   ...Object.values(permissions.leads),
+  ...Object.values(permissions.ai),
 ];
 
 export const rolePermissions: Record<Role, readonly Permission[]> = {
@@ -93,6 +98,7 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.media.upload,
     permissions.media.update,
     permissions.favorites.read,
+    permissions.ai.generate,
   ],
   [roles.AGENT]: [
     permissions.properties.read,
@@ -109,6 +115,8 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     permissions.leads.create,
     permissions.leads.update,
     permissions.leads.assign,
+    permissions.ai.generate,
+    permissions.ai.read,
   ],
   [roles.VIEWER]: [
     permissions.properties.read,

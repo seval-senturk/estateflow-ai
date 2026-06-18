@@ -244,6 +244,7 @@ model User {
   mediaUploads       Media[]
   activityLogs       ActivityLog[]
   auditLogs          AuditLog[]
+  aiUsageLogs        AiUsageLog[]
   loginHistory       LoginHistory[]
   usersCreated       User[]              @relation("UserCreatedBy")
   usersUpdated       User[]              @relation("UserUpdatedBy")
@@ -1148,4 +1149,51 @@ model AuditLog {
   @@index([action])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// =============================================================================
+// AI (Phase 13)
+// =============================================================================
+
+enum AiFeature {
+  PROPERTY_DESCRIPTION
+  PROPERTY_SUMMARY
+  BLOG_ASSISTANT
+  SEO_ASSISTANT
+  SMART_SEARCH
+  LEAD_SUMMARY
+  CONTENT_IMPROVEMENT
+}
+
+enum AiRequestStatus {
+  SUCCESS
+  ERROR
+  RATE_LIMITED
+  TIMEOUT
+}
+
+model AiUsageLog {
+  id            String          @id @default(cuid())
+  userId        String?
+  feature       AiFeature
+  requestType   String
+  promptVersion String
+  provider      String
+  model         String?
+  inputTokens   Int?
+  outputTokens  Int?
+  totalTokens   Int?
+  latencyMs     Int?
+  status        AiRequestStatus
+  errorCode     String?
+  metadata      Json?
+  createdAt     DateTime        @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([feature])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_usage_logs")
 }

@@ -80,6 +80,9 @@ export const PERMISSIONS = [
   { name: "Delete Leads", slug: "leads:delete", module: "leads" },
   { name: "Assign Leads", slug: "leads:assign", module: "leads" },
   { name: "Export Leads", slug: "leads:export", module: "leads" },
+
+  { name: "Generate AI Content", slug: "ai:generate", module: "ai" },
+  { name: "Read AI Analytics", slug: "ai:read", module: "ai" },
 ] as const;
 
 export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
@@ -98,6 +101,7 @@ export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
     "media:upload",
     "media:update",
     "favorites:read",
+    "ai:generate",
   ],
   AGENT: [
     "properties:read",
@@ -114,6 +118,8 @@ export const ROLE_PERMISSION_MAP: Record<string, readonly string[]> = {
     "leads:create",
     "leads:update",
     "leads:assign",
+    "ai:generate",
+    "ai:read",
   ],
   VIEWER: [
     "properties:read",
