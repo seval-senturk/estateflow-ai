@@ -2,6 +2,7 @@
 
 import { permissions } from "@/config/permissions";
 import { leadRepository } from "@/features/crm/repositories/lead.repository";
+import { getClientRateLimitKey } from "@/features/ai/lib/client-rate-limit";
 import { requirePermission } from "@/lib/authorization/guards";
 import { NotFoundError } from "@/lib/errors";
 
@@ -32,7 +33,8 @@ export async function generatePropertySummaryAction(input: unknown) {
 
 export async function generatePublicPropertySummaryAction(input: unknown) {
   const parsed = generatePropertySummarySchema.parse(input);
-  return aiService.generatePropertySummary("public", parsed.description, parsed.title);
+  const rateLimitKey = await getClientRateLimitKey();
+  return aiService.generatePropertySummary(rateLimitKey, parsed.description, parsed.title);
 }
 
 export async function generateSeoContentAction(input: unknown) {
@@ -55,7 +57,8 @@ export async function parseSmartSearchAction(input: unknown) {
 
 export async function parsePublicSmartSearchAction(input: unknown) {
   const parsed = smartSearchInputSchema.parse(input);
-  return aiService.parseSmartSearch("public", parsed.query);
+  const rateLimitKey = await getClientRateLimitKey();
+  return aiService.parseSmartSearch(rateLimitKey, parsed.query);
 }
 
 export async function generateLeadSummaryAction(input: unknown) {

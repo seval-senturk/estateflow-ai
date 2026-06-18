@@ -1,3 +1,4 @@
+export { AiSettingsPanel } from "./ai-settings-panel";
 export { AiGenerateButton } from "./ai-generate-button";
 export { AiPropertyDescriptionButton } from "./ai-property-description-button";
 export { AiPropertySummary } from "./ai-property-summary";

@@ -13,17 +13,18 @@ export function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-export function checkRateLimit(userId: string): void {
+export function checkRateLimit(rateLimitKey: string, maxPerMinute?: number): void {
   const config = getAiConfig();
+  const limit = maxPerMinute ?? config.maxRequestsPerMinute;
   const now = Date.now();
-  const entry = rateLimitStore.get(userId);
+  const entry = rateLimitStore.get(rateLimitKey);
 
   if (!entry || now - entry.windowStart > AI_RATE_LIMIT_WINDOW_MS) {
-    rateLimitStore.set(userId, { count: 1, windowStart: now });
+    rateLimitStore.set(rateLimitKey, { count: 1, windowStart: now });
     return;
   }
 
-  if (entry.count >= config.maxRequestsPerMinute) {
+  if (entry.count >= limit) {
     throw new AiError(
       "Dakikalık AI istek limitine ulaşıldı. Lütfen kısa süre sonra tekrar deneyin.",
       "AI_RATE_LIMIT",
@@ -31,7 +32,11 @@ export function checkRateLimit(userId: string): void {
   }
 
   entry.count += 1;
-  rateLimitStore.set(userId, entry);
+  rateLimitStore.set(rateLimitKey, entry);
+}
+
+export function checkPublicRateLimit(rateLimitKey: string): void {
+  checkRateLimit(rateLimitKey, getAiConfig().publicMaxRequestsPerMinute);
 }
 
 export function assertTokenBudget(systemPrompt: string, userPrompt: string, maxTokens: number): void {

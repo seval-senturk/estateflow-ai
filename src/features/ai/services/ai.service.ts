@@ -20,6 +20,8 @@ import {
   seoAssistantPrompt,
   smartSearchPrompt,
 } from "../prompts";
+import { getCachedPropertySummary, getCachedSmartSearchParse } from "@/lib/cache/ai-responses";
+
 import { getAiProvider } from "../providers";
 import { aiUsageRepository } from "../repositories/ai-usage.repository";
 import type {
@@ -33,7 +35,7 @@ import type {
   SeoAssistantResult,
   SmartSearchParseResult,
 } from "../types";
-import { assertTokenBudget, checkRateLimit } from "./token-manager";
+import { assertTokenBudget, checkPublicRateLimit, checkRateLimit } from "./token-manager";
 
 function parseJsonResponse<T>(content: string): T {
   const trimmed = content.trim();
@@ -84,7 +86,11 @@ export class AiService extends BaseService {
         throw new AiError("AI sağlayıcısı yapılandırılmamış.", "AI_NOT_CONFIGURED");
       }
 
-      checkRateLimit(userId);
+      if (userId.startsWith("ip:")) {
+        checkPublicRateLimit(userId);
+      } else {
+        checkRateLimit(userId);
+      }
       assertTokenBudget(systemPrompt, userPrompt, maxTokens ?? config.defaultMaxTokens);
 
       const result = await provider.complete({
@@ -170,17 +176,25 @@ export class AiService extends BaseService {
     userId: string,
     description: string,
     title?: string,
+    options?: { useCache?: boolean },
   ): Promise<ActionResult<{ summary: string }>> {
-    return this.executeCompletion({
-      userId,
-      feature: "PROPERTY_SUMMARY",
-      requestType: AI_REQUEST_TYPES.GENERATE_SUMMARY,
-      promptVersion: propertySummaryPrompt.version,
-      systemPrompt: propertySummaryPrompt.system,
-      userPrompt: propertySummaryPrompt.buildUser(description, title),
-      maxTokens: 300,
-      parse: (content) => ({ summary: content }),
-    });
+    const run = () =>
+      this.executeCompletion({
+        userId,
+        feature: "PROPERTY_SUMMARY",
+        requestType: AI_REQUEST_TYPES.GENERATE_SUMMARY,
+        promptVersion: propertySummaryPrompt.version,
+        systemPrompt: propertySummaryPrompt.system,
+        userPrompt: propertySummaryPrompt.buildUser(description, title),
+        maxTokens: 300,
+        parse: (content) => ({ summary: content }),
+      });
+
+    if (options?.useCache === false) {
+      return run();
+    }
+
+    return getCachedPropertySummary(description, title, run);
   }
 
   async generateSeoContent(
@@ -276,18 +290,26 @@ export class AiService extends BaseService {
   async parseSmartSearch(
     userId: string,
     query: string,
+    options?: { useCache?: boolean },
   ): Promise<ActionResult<SmartSearchParseResult>> {
-    return this.executeCompletion({
-      userId,
-      feature: "SMART_SEARCH",
-      requestType: AI_REQUEST_TYPES.SMART_SEARCH_PARSE,
-      promptVersion: smartSearchPrompt.version,
-      systemPrompt: smartSearchPrompt.system,
-      userPrompt: smartSearchPrompt.buildUser(query),
-      jsonMode: true,
-      maxTokens: 500,
-      parse: (content) => parseJsonResponse<SmartSearchParseResult>(content),
-    });
+    const run = () =>
+      this.executeCompletion({
+        userId,
+        feature: "SMART_SEARCH",
+        requestType: AI_REQUEST_TYPES.SMART_SEARCH_PARSE,
+        promptVersion: smartSearchPrompt.version,
+        systemPrompt: smartSearchPrompt.system,
+        userPrompt: smartSearchPrompt.buildUser(query),
+        jsonMode: true,
+        maxTokens: 500,
+        parse: (content) => parseJsonResponse<SmartSearchParseResult>(content),
+      });
+
+    if (options?.useCache === false) {
+      return run();
+    }
+
+    return getCachedSmartSearchParse(query, run);
   }
 
   async generateLeadSummary(

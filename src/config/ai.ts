@@ -14,6 +14,7 @@ const aiConfigSchema = z.object({
   defaultMaxTokens: z.number().int().positive(),
   defaultTemperature: z.number().min(0).max(2),
   maxRequestsPerMinute: z.number().int().positive(),
+  publicMaxRequestsPerMinute: z.number().int().positive(),
   maxTokensPerRequest: z.number().int().positive(),
   openai: z.object({
     apiKey: z.string().optional(),
@@ -43,6 +44,7 @@ export function getAiConfig(): AiConfig {
     defaultMaxTokens: Number(process.env.AI_DEFAULT_MAX_TOKENS ?? AI_DEFAULT_MAX_TOKENS),
     defaultTemperature: Number(process.env.AI_DEFAULT_TEMPERATURE ?? AI_DEFAULT_TEMPERATURE),
     maxRequestsPerMinute: Number(process.env.AI_MAX_REQUESTS_PER_MINUTE ?? 20),
+    publicMaxRequestsPerMinute: Number(process.env.AI_PUBLIC_MAX_REQUESTS_PER_MINUTE ?? 10),
     maxTokensPerRequest: Number(process.env.AI_MAX_TOKENS_PER_REQUEST ?? 4000),
     openai: {
       apiKey: process.env.OPENAI_API_KEY,
@@ -59,4 +61,28 @@ export function getAiConfig(): AiConfig {
 
 export function isAiEnabled(): boolean {
   return getAiConfig().enabled;
+}
+
+export function getAiPublicConfig() {
+  const config = getAiConfig();
+  const providerConfigured =
+    config.provider === "azure-openai"
+      ? Boolean(config.azure.apiKey && config.azure.endpoint && config.azure.deployment)
+      : Boolean(config.openai.apiKey);
+
+  return {
+    enabled: config.enabled,
+    provider: config.provider,
+    model:
+      config.provider === "azure-openai"
+        ? (config.azure.deployment ?? "—")
+        : config.openai.model,
+    configured: providerConfigured,
+    defaultMaxTokens: config.defaultMaxTokens,
+    defaultTemperature: config.defaultTemperature,
+    maxRequestsPerMinute: config.maxRequestsPerMinute,
+    publicMaxRequestsPerMinute: config.publicMaxRequestsPerMinute,
+    maxTokensPerRequest: config.maxTokensPerRequest,
+    cacheRevalidateSeconds: Number(process.env.AI_CACHE_REVALIDATE_SECONDS ?? 3600),
+  };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import type { BlogPostFormInput } from "@/features/blog/schemas";
@@ -16,6 +17,8 @@ interface AiBlogAssistantPanelProps {
 export function AiBlogAssistantPanel({ lookup }: AiBlogAssistantPanelProps) {
   const form = useFormContext<BlogPostFormInput>();
   const { execute, retry, isLoading, error } = useAiAction(runBlogAssistantAction);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamError, setStreamError] = useState<string | null>(null);
 
   const getContext = () => ({
     title: form.getValues("title"),
@@ -39,6 +42,48 @@ export function AiBlogAssistantPanel({ lookup }: AiBlogAssistantPanelProps) {
     }
     if (result.data.suggestedCategoryId) {
       form.setValue("categoryId", result.data.suggestedCategoryId, { shouldDirty: true });
+    }
+  };
+
+  const runStreamDraft = async () => {
+    const title = form.getValues("title")?.trim();
+    if (!title || title.length < 3) {
+      setStreamError("Stream için en az 3 karakterlik başlık girin.");
+      return;
+    }
+
+    setStreamError(null);
+    setIsStreaming(true);
+    form.setValue("content", "", { shouldDirty: true });
+
+    try {
+      const response = await fetch("/api/ai/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          excerpt: form.getValues("excerpt"),
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error("AI stream başlatılamadı.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let draft = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        draft += decoder.decode(value, { stream: true });
+        form.setValue("content", draft, { shouldDirty: true });
+      }
+    } catch (streamErr) {
+      setStreamError(streamErr instanceof Error ? streamErr.message : "Stream hatası oluştu.");
+    } finally {
+      setIsStreaming(false);
     }
   };
 
@@ -67,6 +112,14 @@ export function AiBlogAssistantPanel({ lookup }: AiBlogAssistantPanelProps) {
           label="İçerik Taslağı"
           isLoading={isLoading}
           onGenerate={() => runMode("draft")}
+        />
+        <AiGenerateButton
+          label="Taslak (Stream)"
+          loadingLabel="Yazılıyor…"
+          isLoading={isStreaming}
+          error={streamError}
+          onGenerate={runStreamDraft}
+          onRetry={runStreamDraft}
         />
         <AiGenerateButton
           label="Kategori Öner"
