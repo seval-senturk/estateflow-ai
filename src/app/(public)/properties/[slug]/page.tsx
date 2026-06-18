@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Breadcrumb } from "@/components/shared";
+import { AiPropertySummary } from "@/features/ai/components";
 import { PublicPropertyGalleryLazy as PublicPropertyGallery } from "@/features/media/components/public-property-gallery-lazy";
 import { getCachedPublishedPropertyBySlug } from "@/lib/cache";
 import { routes } from "@/config/routes";
@@ -152,6 +153,10 @@ export default async function PublicPropertyDetailPage({
                   {property.description}
                 </p>
               </section>
+            ) : null}
+
+            {property.description ? (
+              <AiPropertySummary description={property.description} title={property.title} />
             ) : null}
 
             <section className="space-y-4">

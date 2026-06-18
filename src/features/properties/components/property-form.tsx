@@ -6,6 +6,11 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 
 import {
+  AiContentImprovementPanel,
+  AiPropertyDescriptionButton,
+  AiSeoAssistantPanel,
+} from "@/features/ai/components";
+import {
   AdminForm,
   FormCheckboxField,
   FormFeatureCheckbox,
@@ -130,9 +135,13 @@ export function PropertyForm({ mode, lookup, property }: PropertyFormProps) {
               />
             </div>
             <div className="sm:col-span-2">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">Açıklama</span>
+                <AiPropertyDescriptionButton lookup={lookup} />
+              </div>
               <FormTextareaField
                 name="description"
-                label="Açıklama"
+                label=""
                 placeholder="İlanın detaylı açıklaması"
                 rows={8}
               />
@@ -250,6 +259,7 @@ export function PropertyForm({ mode, lookup, property }: PropertyFormProps) {
 
         <div className="rounded-xl border border-border bg-card p-6">
           <FormSection title="SEO" description="Arama motoru ve sosyal paylaşım ayarları.">
+            <AiSeoAssistantPanel entityType="property" />
             <FormField name="metaTitle" label="Meta Title" maxLength={160} />
             <div className="sm:col-span-2">
               <FormTextareaField
@@ -275,6 +285,23 @@ export function PropertyForm({ mode, lookup, property }: PropertyFormProps) {
               placeholder="https://example.com/og-image.jpg"
             />
           </FormSection>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-6">
+          <AiContentImprovementPanel
+            getInput={() => {
+              const values = form.getValues();
+              return {
+                entityType: "property" as const,
+                title: values.title,
+                shortDescription: values.shortDescription,
+                description: values.description,
+                metaTitle: values.metaTitle,
+                metaDescription: values.metaDescription,
+                metaKeywords: values.metaKeywords,
+              };
+            }}
+          />
         </div>
       </FormLayout>
     </AdminForm>
