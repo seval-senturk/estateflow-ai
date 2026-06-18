@@ -5,7 +5,7 @@ import { LoadingState } from "@/components/admin/ui/loading-state";
 import { PageHeader, Button } from "@/components/shared";
 import { permissions } from "@/config/permissions";
 import { routes } from "@/config/routes";
-import { LeadKanbanBoard, LeadListTable } from "@/features/crm/components";
+import { LeadKanbanBoardLazy as LeadKanbanBoard, LeadListTable } from "@/features/crm/components";
 import { buildKanbanColumns } from "@/features/crm/lib/kanban";
 import { crmService } from "@/features/crm/services";
 import { enforcePermission } from "@/lib/authorization/guards";
@@ -26,6 +26,8 @@ export default async function AdminLeadsPage({ searchParams }: AdminLeadsPagePro
   const user = await enforcePermission(permissions.leads.read);
   const params = await searchParams;
 
+  const showKanban = getParam(params, "view") === "kanban";
+
   const [listResult, lookup, kanbanData] = await Promise.all([
     crmService.list({
       search: getParam(params, "search"),
@@ -40,7 +42,7 @@ export default async function AdminLeadsPage({ searchParams }: AdminLeadsPagePro
       sortOrder: (getParam(params, "sortOrder") as "asc" | "desc") ?? "desc",
     }),
     crmService.getLookupData(),
-    crmService.getKanbanBoard(),
+    showKanban ? crmService.getKanbanBoard() : Promise.resolve([]),
   ]);
 
   const canCreate = user.permissions.includes(permissions.leads.create);
@@ -51,7 +53,7 @@ export default async function AdminLeadsPage({ searchParams }: AdminLeadsPagePro
     ? listResult.data
     : { items: [], total: 0, page: 1, pageSize: 15, totalPages: 0 };
 
-  const kanbanColumns = buildKanbanColumns(kanbanData);
+  const kanbanColumns = showKanban ? buildKanbanColumns(kanbanData) : [];
 
   return (
     <div className="space-y-8">
@@ -81,13 +83,15 @@ export default async function AdminLeadsPage({ searchParams }: AdminLeadsPagePro
         />
       </Suspense>
 
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-medium">Kanban Görünümü</h2>
-          <p className="text-sm text-muted-foreground">Lead durumlarına göre hızlı pipeline özeti.</p>
-        </div>
-        <LeadKanbanBoard columns={kanbanColumns} />
-      </section>
+      {showKanban ? (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-medium">Kanban Görünümü</h2>
+            <p className="text-sm text-muted-foreground">Lead durumlarına göre hızlı pipeline özeti.</p>
+          </div>
+          <LeadKanbanBoard columns={kanbanColumns} />
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { LoadingState } from "@/components/admin/ui/loading-state";
 import { PageHeader } from "@/components/shared";
 import { permissions } from "@/config/permissions";
-import { MediaLibrary } from "@/features/media/components";
+import { MediaLibraryLazy as MediaLibrary } from "@/features/media/components/media-library-lazy";
 import { mediaService } from "@/features/media/services";
 import { enforcePermission } from "@/lib/authorization/guards";
 

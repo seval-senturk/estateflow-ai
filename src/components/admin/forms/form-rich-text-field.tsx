@@ -2,7 +2,7 @@
 
 import { useFormContext } from "react-hook-form";
 
-import { RichTextEditor } from "@/components/editor/rich-text-editor";
+import { RichTextEditorLazy as RichTextEditor } from "@/components/editor/rich-text-editor-lazy";
 import { cn } from "@/lib/utils";
 
 interface FormRichTextFieldProps {
