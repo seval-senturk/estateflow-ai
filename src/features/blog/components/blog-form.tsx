@@ -17,6 +17,11 @@ import {
   FormTextareaField,
 } from "@/components/admin/forms";
 import { Button } from "@/components/shared";
+import {
+  AiBlogAssistantPanel,
+  AiBlogSeoAssistantPanel,
+  AiContentImprovementPanel,
+} from "@/features/ai/components";
 import { BLOG_POST_STATUS_LABELS } from "../constants";
 import { createBlogPostAction, updateBlogPostAction } from "../actions";
 import { blogPostFormSchema, blogSlugFromTitle, type BlogPostFormInput } from "../schemas";
@@ -102,6 +107,7 @@ export function BlogForm({ mode, lookup, post, currentUserId }: BlogFormProps) {
 
         <div className="rounded-xl border border-border bg-card p-6">
           <FormSection title="İçerik" description="Zengin metin editörü ile profesyonel içerik oluşturun.">
+            <AiBlogAssistantPanel lookup={lookup} />
             <FormRichTextField name="content" label="İçerik" />
           </FormSection>
         </div>
@@ -177,12 +183,29 @@ export function BlogForm({ mode, lookup, post, currentUserId }: BlogFormProps) {
 
         <div className="rounded-xl border border-border bg-card p-6">
           <FormSection title="SEO" description="Arama motorları ve sosyal medya için metadata.">
+            <AiBlogSeoAssistantPanel />
             <FormField name="metaTitle" label="Meta Title" maxLength={160} />
             <FormTextareaField name="metaDescription" label="Meta Description" rows={3} maxLength={320} />
             <FormField name="metaKeywords" label="Anahtar Kelimeler" placeholder="emlak, yatırım, konut" />
             <FormField name="canonicalUrl" label="Canonical URL" placeholder="https://..." />
             <FormField name="ogImage" label="Open Graph Görseli" placeholder="https://..." />
           </FormSection>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-6">
+          <AiContentImprovementPanel
+            getInput={() => {
+              const values = form.getValues();
+              return {
+                entityType: "blog" as const,
+                title: values.title,
+                content: values.content,
+                metaTitle: values.metaTitle,
+                metaDescription: values.metaDescription,
+                metaKeywords: values.metaKeywords,
+              };
+            }}
+          />
         </div>
       </FormLayout>
     </AdminForm>
