@@ -1,3 +1,4 @@
+import { loggableEntities, snapshotRecord, trackActivity, trackAudit } from "@/lib/logging";
 import { ValidationError } from "@/lib/errors";
 import { BaseService } from "@/services/base.service";
 import type { AsyncActionResult } from "@/types";
@@ -77,6 +78,26 @@ export class PropertyService extends BaseService {
       }
 
       const property = await propertyRepository.create(parsed, userId);
+      await trackActivity({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: property.id,
+        description: `İlan oluşturuldu: ${parsed.title}`,
+      });
+      await trackAudit({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: property.id,
+        newValues: snapshotRecord(parsed as unknown as Record<string, unknown>, [
+          "title",
+          "slug",
+          "price",
+          "statusId",
+          "isPublished",
+        ]),
+      });
       return this.success({ id: property.id });
     } catch (error) {
       return this.handleError(error);
@@ -99,6 +120,33 @@ export class PropertyService extends BaseService {
       }
 
       await propertyRepository.update(id, parsed, userId);
+      await trackActivity({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: id,
+        description: `İlan güncellendi: ${parsed.title}`,
+      });
+      await trackAudit({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: id,
+        oldValues: snapshotRecord(existing as unknown as Record<string, unknown>, [
+          "title",
+          "slug",
+          "price",
+          "statusId",
+          "isPublished",
+        ]),
+        newValues: snapshotRecord(parsed as unknown as Record<string, unknown>, [
+          "title",
+          "slug",
+          "price",
+          "statusId",
+          "isPublished",
+        ]),
+      });
       return this.success({ id });
     } catch (error) {
       return this.handleError(error);
@@ -110,6 +158,20 @@ export class PropertyService extends BaseService {
       const existing = await propertyRepository.findById(id);
       this.assertFound(existing, "Property");
       await propertyRepository.softDelete(id, userId);
+      await trackActivity({
+        userId,
+        action: "DELETE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: id,
+        description: `İlan silindi: ${existing.title}`,
+      });
+      await trackAudit({
+        userId,
+        action: "DELETE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: id,
+        oldValues: snapshotRecord(existing as unknown as Record<string, unknown>, ["title", "slug"]),
+      });
       return this.success(undefined);
     } catch (error) {
       return this.handleError(error);
@@ -125,6 +187,14 @@ export class PropertyService extends BaseService {
       const existing = await propertyRepository.findById(id);
       this.assertFound(existing, "Property");
       await propertyRepository.updateStatus(id, statusId, userId);
+      await trackActivity({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.PROPERTY,
+        entityId: id,
+        description: `İlan durumu güncellendi: ${existing.title}`,
+        metadata: { statusId },
+      });
       return this.success({ id });
     } catch (error) {
       return this.handleError(error);

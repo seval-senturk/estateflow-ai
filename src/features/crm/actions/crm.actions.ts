@@ -34,8 +34,8 @@ export async function updateLeadAction(id: string, input: LeadFormInput) {
 }
 
 export async function deleteLeadAction(id: string) {
-  await requirePermission(permissions.leads.delete);
-  const result = await crmService.delete(id);
+  const user = await requirePermission(permissions.leads.delete);
+  const result = await crmService.delete(id, user.id);
   if (!result.success) return result;
   revalidatePath(routes.admin.leads);
   redirect(routes.admin.leads);

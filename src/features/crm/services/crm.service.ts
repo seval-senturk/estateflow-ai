@@ -1,3 +1,4 @@
+import { loggableEntities, snapshotRecord, trackActivity, trackAudit } from "@/lib/logging";
 import { trackCrmNotification } from "../lib/notifications";
 import { leadRepository } from "../repositories";
 import {
@@ -57,6 +58,26 @@ export class CrmService extends BaseService {
       const parsed = leadFormSchema.parse(input);
       const lead = await leadRepository.create(parsed, userId);
       await leadRepository.logActivity(lead.id, userId, "LEAD_CREATED", "Lead oluşturuldu");
+      await trackActivity({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.LEAD,
+        entityId: lead.id,
+        description: `Lead oluşturuldu: ${parsed.firstName} ${parsed.lastName ?? ""}`.trim(),
+      });
+      await trackAudit({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.LEAD,
+        entityId: lead.id,
+        newValues: snapshotRecord(parsed as unknown as Record<string, unknown>, [
+          "firstName",
+          "lastName",
+          "email",
+          "source",
+          "statusId",
+        ]),
+      });
       trackCrmNotification({ type: "NEW_LEAD", leadId: lead.id });
       return this.success({ id: lead.id });
     } catch (error) {
@@ -67,8 +88,33 @@ export class CrmService extends BaseService {
   async update(id: string, input: LeadFormInput, userId: string): AsyncActionResult<{ id: string }> {
     try {
       const parsed = leadFormSchema.parse(input);
+      const before = await leadRepository.findById(id);
+      this.assertFound(before, "Lead");
       const lead = await leadRepository.update(id, parsed);
       await leadRepository.logActivity(id, userId, "LEAD_UPDATED", "Lead güncellendi");
+      await trackActivity({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.LEAD,
+        entityId: id,
+        description: `Lead güncellendi: ${parsed.firstName}`,
+      });
+      await trackAudit({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.LEAD,
+        entityId: id,
+        oldValues: {
+          firstName: before.firstName,
+          email: before.email,
+          statusId: before.status.id,
+        },
+        newValues: snapshotRecord(parsed as unknown as Record<string, unknown>, [
+          "firstName",
+          "email",
+          "statusId",
+        ]),
+      });
       return this.success({ id: lead.id });
     } catch (error) {
       return this.handleError(error);
@@ -103,6 +149,14 @@ export class CrmService extends BaseService {
       const type = parsed.assignedToId ? "AGENT_ASSIGNED" : "AGENT_UNASSIGNED";
       const title = parsed.assignedToId ? "Danışman atandı" : "Danışman ataması kaldırıldı";
       await leadRepository.logActivity(id, userId, type, title);
+      await trackActivity({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.LEAD,
+        entityId: id,
+        description: title,
+        metadata: { assignedToId: parsed.assignedToId },
+      });
       if (parsed.assignedToId) {
         trackCrmNotification({ type: "ASSIGNMENT", leadId: id, agentId: parsed.assignedToId });
       }
@@ -123,8 +177,18 @@ export class CrmService extends BaseService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string, userId?: string) {
     try {
+      const existing = await leadRepository.findById(id);
+      if (existing) {
+        await trackActivity({
+          userId,
+          action: "DELETE",
+          entityType: loggableEntities.LEAD,
+          entityId: id,
+          description: `Lead silindi: ${existing.firstName}`,
+        });
+      }
       await leadRepository.softDelete(id);
       return this.success(undefined);
     } catch (error) {

@@ -31,8 +31,8 @@ export async function updateMediaMetadataAction(id: string, input: MediaMetadata
 }
 
 export async function deleteMediaAction(id: string) {
-  await requirePermission(permissions.media.delete);
-  const result = await mediaService.delete(id);
+  const user = await requirePermission(permissions.media.delete);
+  const result = await mediaService.delete(id, user.id);
 
   if (result.success) {
     revalidatePath(routes.admin.media);

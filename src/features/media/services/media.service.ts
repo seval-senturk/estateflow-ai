@@ -1,5 +1,6 @@
 import { MediaType } from "@prisma/client";
 
+import { loggableEntities, trackActivity, trackAudit } from "@/lib/logging";
 import { isCloudinaryConfigured } from "@/config/cloudinary";
 import { ValidationError } from "@/lib/errors";
 import { deleteFromCloudinary, uploadToCloudinary } from "@/lib/cloudinary/server";
@@ -102,6 +103,21 @@ export class MediaService extends BaseService {
         uploadedById: userId,
       });
 
+      await trackActivity({
+        userId,
+        action: "UPLOAD",
+        entityType: loggableEntities.MEDIA,
+        entityId: media.id,
+        description: `Medya yüklendi: ${input.filename}`,
+      });
+      await trackAudit({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.MEDIA,
+        entityId: media.id,
+        newValues: { filename: input.filename, mimeType: input.mimeType },
+      });
+
       return this.success({ id: media.id });
     } catch (error) {
       return this.fail(
@@ -132,7 +148,7 @@ export class MediaService extends BaseService {
     }
   }
 
-  async delete(id: string): AsyncActionResult<void> {
+  async delete(id: string, userId?: string): AsyncActionResult<void> {
     try {
       const existing = await mediaRepository.findById(id);
       this.assertFound(existing, "Media");
@@ -145,6 +161,20 @@ export class MediaService extends BaseService {
       }
 
       await mediaRepository.softDelete(id);
+      await trackActivity({
+        userId,
+        action: "DELETE",
+        entityType: loggableEntities.MEDIA,
+        entityId: id,
+        description: `Medya silindi: ${existing.originalName}`,
+      });
+      await trackAudit({
+        userId,
+        action: "DELETE",
+        entityType: loggableEntities.MEDIA,
+        entityId: id,
+        oldValues: { originalName: existing.originalName },
+      });
       return this.success(undefined);
     } catch (error) {
       return this.handleError(error);

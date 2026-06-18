@@ -3,7 +3,8 @@
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
-import { signIn, signOut } from "@/lib/auth";
+import { auth, signIn, signOut } from "@/lib/auth";
+import { getLogContext, trackActivity } from "@/lib/logging";
 import { routes } from "@/config/routes";
 import {
   AUTH_ERROR_CODES,
@@ -77,5 +78,16 @@ export async function loginAction(
 }
 
 export async function logoutAction(): Promise<void> {
+  const session = await auth();
+  if (session?.user?.id) {
+    const context = await getLogContext(session.user.id, session.user.email ?? undefined);
+    await trackActivity({
+      userId: session.user.id,
+      action: "LOGOUT",
+      entityType: "SESSION",
+      description: `Çıkış yapıldı: ${session.user.email}`,
+      context,
+    });
+  }
   await signOut({ redirectTo: routes.auth.login });
 }

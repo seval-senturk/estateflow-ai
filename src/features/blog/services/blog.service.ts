@@ -1,5 +1,6 @@
 import type { BlogPostStatus } from "@prisma/client";
 
+import { loggableEntities, snapshotRecord, trackActivity, trackAudit } from "@/lib/logging";
 import { ValidationError } from "@/lib/errors";
 import { BaseService } from "@/services/base.service";
 import type { AsyncActionResult } from "@/types";
@@ -74,6 +75,20 @@ export class BlogService extends BaseService {
       }
 
       const post = await blogRepository.create(parsed, userId);
+      await trackActivity({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.BLOG_POST,
+        entityId: post.id,
+        description: `Blog yazısı oluşturuldu: ${parsed.title}`,
+      });
+      await trackAudit({
+        userId,
+        action: "CREATE",
+        entityType: loggableEntities.BLOG_POST,
+        entityId: post.id,
+        newValues: snapshotRecord(parsed as unknown as Record<string, unknown>, ["title", "slug", "status"]),
+      });
       return this.success({ id: post.id });
     } catch (error) {
       return this.handleError(error);
@@ -92,7 +107,25 @@ export class BlogService extends BaseService {
         return this.fail("Bu slug zaten kullanılıyor", BLOG_ERROR_CODES.SLUG_CONFLICT);
       }
 
+      const existing = await blogRepository.findById(id);
+      this.assertFound(existing, "Blog post");
+
       const post = await blogRepository.update(id, parsed, userId);
+      await trackActivity({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.BLOG_POST,
+        entityId: id,
+        description: `Blog yazısı güncellendi: ${parsed.title}`,
+      });
+      await trackAudit({
+        userId,
+        action: "UPDATE",
+        entityType: loggableEntities.BLOG_POST,
+        entityId: id,
+        oldValues: snapshotRecord(existing as unknown as Record<string, unknown>, ["title", "slug", "status"]),
+        newValues: snapshotRecord(parsed as unknown as Record<string, unknown>, ["title", "slug", "status"]),
+      });
       return this.success({ id: post.id });
     } catch (error) {
       return this.handleError(error);
@@ -106,6 +139,15 @@ export class BlogService extends BaseService {
   ): AsyncActionResult<{ id: string }> {
     try {
       const post = await blogRepository.updateStatus(id, status, userId);
+      const action = status === "PUBLISHED" ? "PUBLISH" : status === "DRAFT" ? "UNPUBLISH" : "UPDATE";
+      await trackActivity({
+        userId,
+        action,
+        entityType: loggableEntities.BLOG_POST,
+        entityId: id,
+        description: `Blog durumu güncellendi: ${post.title}`,
+        metadata: { status },
+      });
       return this.success({ id: post.id });
     } catch (error) {
       return this.handleError(error);
@@ -114,7 +156,23 @@ export class BlogService extends BaseService {
 
   async delete(id: string, userId: string): AsyncActionResult<void> {
     try {
+      const existing = await blogRepository.findById(id);
+      this.assertFound(existing, "Blog post");
       await blogRepository.softDelete(id, userId);
+      await trackActivity({
+        userId,
+        action: "DELETE",
+        entityType: loggableEntities.BLOG_POST,
+        entityId: id,
+        description: `Blog yazısı silindi: ${existing.title}`,
+      });
+      await trackAudit({
+        userId,
+        action: "DELETE",
+        entityType: loggableEntities.BLOG_POST,
+        entityId: id,
+        oldValues: snapshotRecord(existing as unknown as Record<string, unknown>, ["title", "slug"]),
+      });
       return this.success(undefined);
     } catch (error) {
       return this.handleError(error);

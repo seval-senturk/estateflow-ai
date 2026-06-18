@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { trackSecurityEvent } from "@/lib/logging";
 import { auth } from "@/lib/auth";
 import {
   AuthenticationError,
@@ -93,6 +94,11 @@ export async function enforcePermission(
     authorize(user, { permissions: [permission] });
   } catch (error) {
     if (error instanceof AuthorizationError) {
+      await trackSecurityEvent({
+        type: "PERMISSION_VIOLATION",
+        userId: user.id,
+        metadata: { permission },
+      });
       redirect(`${routes.admin.dashboard}?error=forbidden`);
     }
     throw error;

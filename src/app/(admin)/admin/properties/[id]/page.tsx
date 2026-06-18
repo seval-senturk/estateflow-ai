@@ -7,6 +7,8 @@ import { routes } from "@/config/routes";
 import { PropertyDetailTabs } from "@/features/properties/components";
 import { propertyMediaService } from "@/features/media/services";
 import { propertyService } from "@/features/properties/services";
+import { EntityHistoryPanel } from "@/features/audit/components";
+import { auditService } from "@/features/audit/services";
 import { enforcePermission } from "@/lib/authorization/guards";
 
 interface PropertyDetailPageProps {
@@ -17,10 +19,11 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
   const user = await enforcePermission(permissions.properties.read);
   const { id } = await params;
 
-  const [propertyResult, lookup, mediaResult] = await Promise.all([
+  const [propertyResult, lookup, mediaResult, auditHistory] = await Promise.all([
     propertyService.getById(id),
     propertyService.getLookupData(),
     propertyMediaService.getPropertyMedia(id),
+    auditService.getEntityHistory("PROPERTY", id),
   ]);
 
   if (!propertyResult.success) {
@@ -56,6 +59,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
         }))}
         canUpdate={canUpdate}
       />
+      <EntityHistoryPanel title="İlan Geçmişi" entries={auditHistory} />
     </div>
   );
 }

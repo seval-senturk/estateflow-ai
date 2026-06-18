@@ -6,6 +6,8 @@ import { permissions } from "@/config/permissions";
 import { routes } from "@/config/routes";
 import { BlogDetailTabs } from "@/features/blog/components";
 import { blogService } from "@/features/blog/services";
+import { EntityHistoryPanel } from "@/features/audit/components";
+import { auditService } from "@/features/audit/services";
 import { enforcePermission } from "@/lib/authorization/guards";
 
 interface BlogDetailPageProps {
@@ -19,7 +21,10 @@ export default async function BlogDetailPage({ params, searchParams }: BlogDetai
   const query = await searchParams;
   const tab = typeof query.tab === "string" ? query.tab : "overview";
 
-  const result = await blogService.getById(id);
+  const [result, auditHistory] = await Promise.all([
+    blogService.getById(id),
+    auditService.getEntityHistory("BLOG_POST", id),
+  ]);
   if (!result.success) {
     notFound();
   }
@@ -50,6 +55,7 @@ export default async function BlogDetailPage({ params, searchParams }: BlogDetai
         canPublish={canPublish}
         activeTab={tab}
       />
+      <EntityHistoryPanel title="Blog Geçmişi" entries={auditHistory} />
     </div>
   );
 }

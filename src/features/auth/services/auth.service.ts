@@ -1,5 +1,6 @@
 import { LoginResult } from "@prisma/client";
 
+import { trackActivity, trackSecurityEvent } from "@/lib/logging";
 import { roles, type Role } from "@/config/roles";
 import type { Permission } from "@/config/permissions";
 import { verifyPassword } from "@/lib/password";
@@ -72,6 +73,19 @@ export class AuthService extends BaseService {
       userAgent: options.userAgent,
     });
 
+    await trackActivity({
+      userId: user.id,
+      action: "LOGIN",
+      entityType: "SESSION",
+      description: `Başarılı giriş: ${normalizedEmail}`,
+      context: {
+        userId: user.id,
+        userEmail: normalizedEmail,
+        ipAddress: options.ipAddress,
+        userAgent: options.userAgent,
+      },
+    });
+
     await userRepository.updateLastLogin(user.id);
 
     return this.toAuthenticatedUser(user);
@@ -112,6 +126,15 @@ export class AuthService extends BaseService {
       ipAddress: options.ipAddress,
       userAgent: options.userAgent,
       reason,
+    });
+    await trackSecurityEvent({
+      type: "FAILED_LOGIN",
+      userId,
+      metadata: { email, reason },
+      context: {
+        ipAddress: options.ipAddress,
+        userAgent: options.userAgent,
+      },
     });
   }
 }
