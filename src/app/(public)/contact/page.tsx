@@ -17,7 +17,15 @@ export const metadata: Metadata = {
   alternates: { canonical: `${seoConfig.siteUrl}${routes.public.contact}` },
 };
 
-export default function ContactPage() {
+interface ContactPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const params = await searchParams;
+  const propertyParam = params.property;
+  const propertyTitle = Array.isArray(propertyParam) ? propertyParam[0] : propertyParam;
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl space-y-4 text-center">
@@ -31,7 +39,7 @@ export default function ContactPage() {
       </div>
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <ContactForm />
+        <ContactForm propertyTitle={propertyTitle} />
 
         <aside className="space-y-6">
           <div className="rounded-xl border border-border bg-card p-6">

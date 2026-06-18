@@ -1,19 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { Button, Input } from "@/components/shared";
+import { submitContactRequestAction } from "@/features/crm/actions";
 
-export function ContactForm() {
+interface ContactFormProps {
+  propertyTitle?: string;
+}
+
+export function ContactForm({ propertyTitle }: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setLoading(false);
-    setSubmitted(true);
+    setError(null);
+    const formData = new FormData(event.currentTarget);
+
+    startTransition(async () => {
+      const result = await submitContactRequestAction({
+        name: String(formData.get("name") ?? ""),
+        email: String(formData.get("email") ?? ""),
+        phone: String(formData.get("phone") ?? "") || undefined,
+        subject: String(formData.get("subject") ?? "") || undefined,
+        message: String(formData.get("message") ?? ""),
+        propertyTitle,
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error ?? "Mesaj gönderilemedi.");
+      }
+    });
   };
 
   if (submitted) {
@@ -29,6 +50,12 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-border bg-card p-6 sm:p-8">
+      {propertyTitle ? (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
+          <span className="text-muted-foreground">İlgilendiğiniz ilan: </span>
+          <span className="font-medium">{propertyTitle}</span>
+        </div>
+      ) : null}
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <label htmlFor="contact-name" className="text-sm font-medium">
@@ -53,7 +80,12 @@ export function ContactForm() {
         <label htmlFor="contact-subject" className="text-sm font-medium">
           Konu
         </label>
-        <Input id="contact-subject" name="subject" placeholder="İlan hakkında bilgi" />
+        <Input
+          id="contact-subject"
+          name="subject"
+          placeholder="İlan hakkında bilgi"
+          defaultValue={propertyTitle ? `${propertyTitle} hakkında` : undefined}
+        />
       </div>
       <div className="space-y-2">
         <label htmlFor="contact-message" className="text-sm font-medium">
@@ -68,8 +100,9 @@ export function ContactForm() {
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
         />
       </div>
-      <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-        {loading ? "Gönderiliyor…" : "Mesaj Gönder"}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+        {isPending ? "Gönderiliyor…" : "Mesaj Gönder"}
       </Button>
     </form>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mail, Phone, ShieldCheck } from "lucide-react";
 
 import { routes } from "@/config/routes";
+import { PropertyInquiryForm } from "@/features/crm/components";
 import { CONTACT_INFO } from "../constants";
 import type { PublicPropertyDetail } from "@/features/properties/types";
 import {
@@ -26,11 +27,13 @@ export function PropertyDetailSidebar({ property }: PropertyDetailSidebarProps) 
         </p>
         <Link
           href={`${routes.public.contact}?property=${encodeURIComponent(property.title)}`}
-          className="mt-6 flex h-11 items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          className="mt-4 flex h-11 items-center justify-center rounded-lg border border-border text-sm font-medium transition-colors hover:bg-muted"
         >
-          İletişime Geç
+          Genel İletişim Formu
         </Link>
       </div>
+
+      <PropertyInquiryForm propertyId={property.id} propertyTitle={property.title} />
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold">Danışman</h3>
