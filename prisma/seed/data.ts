@@ -62,8 +62,11 @@ export const PERMISSIONS = [
   // Settings
   { name: "Read Settings", slug: "settings:read", module: "settings" },
   { name: "Update Settings", slug: "settings:update", module: "settings" },
-  // Logs
+  // Logs & Analytics (Phase 11)
   { name: "Read Logs", slug: "logs:read", module: "logs" },
+  { name: "Export Logs", slug: "logs:export", module: "logs" },
+  { name: "Read Audit Trail", slug: "audit:read", module: "audit" },
+  { name: "Read Analytics", slug: "analytics:read", module: "analytics" },
   // Contact
   { name: "Read Contact", slug: "contact:read", module: "contact" },
   { name: "Respond Contact", slug: "contact:respond", module: "contact" },

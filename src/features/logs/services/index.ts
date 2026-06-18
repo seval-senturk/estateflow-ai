@@ -1,2 +1,1 @@
-﻿// logs / services
-export {};
+﻿export { LogsService, logsService } from "./logs.service";

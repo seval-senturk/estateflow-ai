@@ -1,3 +1,5 @@
+import type { ActivityAction, AuditAction } from "@prisma/client";
+
 export const logActionTypes = {
   CREATE: "CREATE",
   UPDATE: "UPDATE",
@@ -9,6 +11,7 @@ export const logActionTypes = {
   UNPUBLISH: "UNPUBLISH",
   UPLOAD: "UPLOAD",
   EXPORT: "EXPORT",
+  RESTORE: "RESTORE",
 } as const;
 
 export type LogActionType =
@@ -17,12 +20,14 @@ export type LogActionType =
 export const loggableEntities = {
   PROPERTY: "PROPERTY",
   BLOG_POST: "BLOG_POST",
+  LEAD: "LEAD",
   MEDIA: "MEDIA",
   USER: "USER",
   CONTACT: "CONTACT",
   FAVORITE: "FAVORITE",
   SETTINGS: "SETTINGS",
   SESSION: "SESSION",
+  SECURITY: "SECURITY",
 } as const;
 
 export type LoggableEntity =
@@ -30,24 +35,43 @@ export type LoggableEntity =
 
 export interface AuditLogEntry {
   id: string;
-  entity: LoggableEntity;
+  entityType: LoggableEntity | string;
   entityId: string;
-  action: LogActionType;
-  userId: string;
-  userEmail: string;
-  metadata?: Record<string, unknown>;
-  ipAddress?: string;
-  userAgent?: string;
+  action: AuditAction;
+  userId: string | null;
+  userName: string | null;
+  userEmail: string | null;
+  oldValues?: Record<string, unknown> | null;
+  newValues?: Record<string, unknown> | null;
+  changes?: Record<string, { from: unknown; to: unknown }> | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
   createdAt: Date;
 }
 
 export interface ActivityLogEntry {
   id: string;
-  userId: string;
-  action: LogActionType;
+  userId: string | null;
+  userName: string | null;
+  userEmail: string | null;
+  action: ActivityAction;
+  entityType?: LoggableEntity | string | null;
+  entityId?: string | null;
   description: string;
-  resourceType?: LoggableEntity;
-  resourceId?: string;
+  metadata?: Record<string, unknown> | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  createdAt: Date;
+}
+
+export interface LoginHistoryEntry {
+  id: string;
+  userId: string | null;
+  email: string;
+  result: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  reason?: string | null;
   createdAt: Date;
 }
 

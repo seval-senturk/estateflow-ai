@@ -33,6 +33,13 @@ export const permissions = {
   },
   logs: {
     read: "logs:read",
+    export: "logs:export",
+  },
+  audit: {
+    read: "audit:read",
+  },
+  analytics: {
+    read: "analytics:read",
   },
   contact: {
     read: "contact:read",
@@ -63,6 +70,8 @@ export const allPermissions: Permission[] = [
   ...Object.values(permissions.users),
   ...Object.values(permissions.settings),
   ...Object.values(permissions.logs),
+  ...Object.values(permissions.audit),
+  ...Object.values(permissions.analytics),
   ...Object.values(permissions.contact),
   ...Object.values(permissions.favorites),
   ...Object.values(permissions.leads),
