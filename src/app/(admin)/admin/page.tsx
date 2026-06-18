@@ -17,6 +17,7 @@ export default async function AdminDashboardPage() {
         analytics={dashboard.analytics}
         recentActivities={dashboard.recentActivities}
         latestProperties={dashboard.latestProperties}
+        aiUsage={dashboard.aiUsage}
       />
     </div>
   );

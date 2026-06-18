@@ -14,6 +14,7 @@ import {
 } from "@/features/search/components";
 import { PropertyMapViewLazy } from "@/features/search/components/property-map-view-lazy";
 import { PropertySearchBar } from "@/features/search/components/property-search-bar";
+import { AiSmartSearchInput } from "@/features/ai/components";
 import { countActiveFilters, getActiveFilterChips } from "@/features/search/lib/active-filters";
 import { buildCanonicalSearchUrl } from "@/features/search/lib/build-search-url";
 import {
@@ -96,6 +97,7 @@ export default async function PublicPropertiesPage({
             defaultDistrict={filters.district}
             compact
           />
+          <AiSmartSearchInput />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">

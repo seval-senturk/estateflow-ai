@@ -1,4 +1,5 @@
-import type { DashboardStats, LatestPropertySummary } from "../types";
+import { AiUsageWidget } from "@/features/ai/components";
+import type { AiUsageStats } from "@/features/ai/types";
 import type { CrmDashboardStats } from "@/features/crm/types";
 import type { AnalyticsSnapshot } from "@/features/analytics/types";
 import {
@@ -14,12 +15,15 @@ import { RecentActivityWidget } from "./recent-activity-widget";
 import { SystemStatusWidget } from "./system-status-widget";
 import type { ActivityLogEntry } from "@/types/logging";
 
+import type { DashboardStats, LatestPropertySummary } from "../types";
+
 interface DashboardWidgetsProps {
   stats: DashboardStats;
   crmStats: CrmDashboardStats;
   analytics: AnalyticsSnapshot;
   recentActivities: ActivityLogEntry[];
   latestProperties: LatestPropertySummary[];
+  aiUsage: AiUsageStats;
 }
 
 export function DashboardWidgets({
@@ -28,6 +32,7 @@ export function DashboardWidgets({
   analytics,
   recentActivities,
   latestProperties,
+  aiUsage,
 }: DashboardWidgetsProps) {
   return (
     <div className="space-y-6">
@@ -46,6 +51,7 @@ export function DashboardWidgets({
         <CrmAgentPerformanceWidget stats={crmStats} />
         <CrmSourceWidget stats={crmStats} />
         <RecentActivityWidget activities={recentActivities} />
+        <AiUsageWidget stats={aiUsage} />
         <SystemStatusWidget />
       </div>
     </div>

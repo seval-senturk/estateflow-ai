@@ -100,6 +100,17 @@ src/
 | **Phase 10** | CRM & lead management | ✅ |
 | **Phase 11** | Activity logs, audit & analytics | ✅ |
 | **Phase 12** | Performance & production hardening | ✅ |
+| **Phase 13** | AI features & intelligent automation | ✅ |
+
+## AI Features (Phase 13)
+
+- **Provider abstraction:** OpenAI + Azure OpenAI via `src/features/ai/providers/`
+- **Property:** AI description generator, SEO assistant, content improvement, public summary
+- **Blog:** Content assistant (titles, meta, draft, category), SEO assistant
+- **CRM:** Lead summary on detail page
+- **Search:** Natural language smart search foundation on `/properties`
+- **Logging:** `AiUsageLog` model with token tracking and dashboard widget
+- **Config:** `AI_PROVIDER`, `OPENAI_API_KEY`, `AZURE_OPENAI_*` in `.env.example`
 
 ## Performance & Production (Phase 12)
 

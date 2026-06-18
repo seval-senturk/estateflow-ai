@@ -7,6 +7,8 @@ import type { ActivityLogEntry } from "@/types/logging";
 import type { AnalyticsSnapshot } from "@/features/analytics/types";
 import type { CrmDashboardStats } from "@/features/crm/types";
 
+import type { AiUsageStats } from "@/features/ai/types";
+import { getAiUsageStats } from "@/features/ai/services";
 import type { DashboardStats, LatestPropertySummary } from "../types";
 
 export interface AdminDashboardData {
@@ -15,6 +17,7 @@ export interface AdminDashboardData {
   analytics: AnalyticsSnapshot;
   recentActivities: ActivityLogEntry[];
   latestProperties: LatestPropertySummary[];
+  aiUsage: AiUsageStats;
 }
 
 export class DashboardService extends BaseService {
@@ -197,6 +200,8 @@ export class DashboardService extends BaseService {
       },
     };
 
+    const aiUsage = await getAiUsageStats();
+
     return {
       stats,
       crmStats,
@@ -211,6 +216,7 @@ export class DashboardService extends BaseService {
         isPublished: property.isPublished,
         createdAt: property.createdAt,
       })),
+      aiUsage,
     };
   }
 }
